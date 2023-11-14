@@ -3,33 +3,44 @@ library stripe_native_card_field;
 import 'dart:async';
 import 'card_details.dart';
 import 'card_provider_icon.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 enum CardEntryStep { number, exp, cvc, postal }
 
 class CardTextField extends StatefulWidget {
-  const CardTextField({Key? key, required this.width, this.height, this.inputDecoration}) : super(key: key);
+  const CardTextField(
+      {Key? key,
+      required this.onCardDetailsComplete,
+      required this.width,
+      this.height,
+      this.inputDecoration,
+      this.boxDecoration,
+      this.errorBoxDecoration})
+      : super(key: key);
 
-  final InputDecoration? inputDecoration;
+  final InputDecoration? inputDecoration; // TODO unapplied style
+  final BoxDecoration? boxDecoration; // TODO unapplied style
+  final BoxDecoration? errorBoxDecoration; // TODO unapplied style
   final double width;
+  final void Function(CardDetails) onCardDetailsComplete;
   final double? height;
 
   @override
-  State<CardTextField> createState() => _CardTextFieldState();
+  State<CardTextField> createState() => CardTextFieldState();
 }
 
-class _CardTextFieldState extends State<CardTextField> {
+@visibleForTesting
+class CardTextFieldState extends State<CardTextField> {
   late TextEditingController _cardNumberController;
   late TextEditingController _expirationController;
   late TextEditingController _securityCodeController;
   late TextEditingController _postalCodeController;
 
-  late FocusNode _cardNumberFocusNode;
-  late FocusNode _expirationFocusNode;
-  late FocusNode _securityCodeFocusNode;
-  late FocusNode _postalCodeFocusNode;
+  late FocusNode cardNumberFocusNode;
+  late FocusNode expirationFocusNode;
+  late FocusNode securityCodeFocusNode;
+  late FocusNode postalCodeFocusNode;
 
   final double _cardFieldWidth = 180.0;
   final double _expirationFieldWidth = 70.0;
@@ -50,16 +61,16 @@ class _CardTextFieldState extends State<CardTextField> {
   final CardDetails _cardDetails = CardDetails.blank();
 
   final normalBoxDecoration = BoxDecoration(
-    color: Color(0xfff6f9fc),
+    color: const Color(0xfff6f9fc),
     border: Border.all(
-      color: Color(0xffdde0e3),
+      color: const Color(0xffdde0e3),
       width: 2.0,
     ),
     borderRadius: BorderRadius.circular(8.0),
   );
 
   final errorBoxDecoration = BoxDecoration(
-    color: Color(0xfff6f9fc),
+    color: const Color(0xfff6f9fc),
     border: Border.all(
       color: Colors.red,
       width: 2.0,
@@ -67,8 +78,8 @@ class _CardTextFieldState extends State<CardTextField> {
     borderRadius: BorderRadius.circular(8.0),
   );
 
-  final TextStyle _errorTextStyle = TextStyle(color: Colors.red, fontSize: 14);
-  final TextStyle _normalTextStyle = TextStyle(color: Colors.black87, fontSize: 14);
+  final TextStyle _errorTextStyle = const TextStyle(color: Colors.red, fontSize: 14);
+  final TextStyle _normalTextStyle = const TextStyle(color: Colors.black87, fontSize: 14);
 
   @override
   void initState() {
@@ -77,10 +88,10 @@ class _CardTextFieldState extends State<CardTextField> {
     _securityCodeController = TextEditingController();
     _postalCodeController = TextEditingController();
 
-    _cardNumberFocusNode = FocusNode();
-    _expirationFocusNode = FocusNode();
-    _securityCodeFocusNode = FocusNode();
-    _postalCodeFocusNode = FocusNode();
+    cardNumberFocusNode = FocusNode();
+    expirationFocusNode = FocusNode();
+    securityCodeFocusNode = FocusNode();
+    postalCodeFocusNode = FocusNode();
 
     _currentCardEntryStepController.stream.listen(
       _onStepChange,
@@ -101,9 +112,9 @@ class _CardTextFieldState extends State<CardTextField> {
     _expirationController.dispose();
     _securityCodeController.dispose();
 
-    _cardNumberFocusNode.dispose();
-    _expirationFocusNode.dispose();
-    _securityCodeFocusNode.dispose();
+    cardNumberFocusNode.dispose();
+    expirationFocusNode.dispose();
+    securityCodeFocusNode.dispose();
 
     RawKeyboard.instance.removeListener(_backspaceTransitionListener);
 
@@ -144,10 +155,11 @@ class _CardTextFieldState extends State<CardTextField> {
                               cardDetails: _cardDetails,
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             width: _cardFieldWidth,
                             child: TextFormField(
-                              focusNode: _cardNumberFocusNode,
+                              key: const Key('card_field'),
+                              focusNode: cardNumberFocusNode,
                               controller: _cardNumberController,
                               keyboardType: TextInputType.number,
                               style: _isRedText([ValidState.invalidCard, ValidState.missingCard, ValidState.blank])
@@ -180,7 +192,7 @@ class _CardTextFieldState extends State<CardTextField> {
                                 FilteringTextInputFormatter.allow(RegExp('[0-9 ]')),
                                 CardNumberInputFormatter(),
                               ],
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'Card number',
                                 fillColor: Colors.transparent,
                                 border: InputBorder.none,
@@ -195,36 +207,43 @@ class _CardTextFieldState extends State<CardTextField> {
                                     curve: Curves.easeOut,
                                     duration: const Duration(milliseconds: 400),
                                     constraints: _currentStep == CardEntryStep.number
-                                        ? BoxConstraints.loose(Size(400.0, 1.0))
-                                        : BoxConstraints.tight(Size(0, 0)))),
+                                        ? BoxConstraints.loose(const Size(400.0, 1.0))
+                                        : BoxConstraints.tight(const Size(0, 0)))),
 
                           // Spacer(flex: _currentStep == CardEntryStep.number ? 100 : 1),
                           AnimatedContainer(
                             duration: const Duration(milliseconds: 125),
                             width: _expirationFieldWidth,
                             child: TextFormField(
-                              focusNode: _expirationFocusNode,
+                              key: const Key('expiration_field'),
+                              focusNode: expirationFocusNode,
                               controller: _expirationController,
-                              style:
-                                  _isRedText([ValidState.dateTooLate, ValidState.dateTooEarly, ValidState.missingDate])
-                                      ? _errorTextStyle
-                                      : _normalTextStyle,
+                              style: _isRedText([
+                                ValidState.dateTooLate,
+                                ValidState.dateTooEarly,
+                                ValidState.missingDate,
+                                ValidState.invalidMonth
+                              ])
+                                  ? _errorTextStyle
+                                  : _normalTextStyle,
                               validator: (content) {
                                 if (content == null || content.isEmpty) {
                                   return null;
                                 }
-                                setState(() => _cardDetails.expirationDate = content);
+                                setState(() => _cardDetails.expirationString = content);
                                 if (_cardDetails.validState == ValidState.dateTooEarly) {
                                   _setValidationState('Your card\'s expiration date is in the past.');
                                 } else if (_cardDetails.validState == ValidState.dateTooLate) {
                                   _setValidationState('Your card\'s expiration year is invalid.');
                                 } else if (_cardDetails.validState == ValidState.missingDate) {
                                   _setValidationState('You must include your card\'s expiration date.');
+                                } else if (_cardDetails.validState == ValidState.invalidMonth) {
+                                  _setValidationState('Invalid expiration month.');
                                 }
                                 return null;
                               },
                               onChanged: (str) {
-                                setState(() => _cardDetails.expirationDate = str);
+                                setState(() => _cardDetails.expirationString = str);
                                 if (str.length == 5) {
                                   _currentCardEntryStepController.add(CardEntryStep.cvc);
                                 }
@@ -234,7 +253,7 @@ class _CardTextFieldState extends State<CardTextField> {
                                 FilteringTextInputFormatter.allow(RegExp('[0-9/]')),
                                 CardExpirationFormatter(),
                               ],
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'MM/YY',
                                 fillColor: Colors.transparent,
                                 border: InputBorder.none,
@@ -245,7 +264,8 @@ class _CardTextFieldState extends State<CardTextField> {
                             duration: const Duration(milliseconds: 250),
                             width: _securityFieldWidth,
                             child: TextFormField(
-                              focusNode: _securityCodeFocusNode,
+                              key: const Key('security_field'),
+                              focusNode: securityCodeFocusNode,
                               controller: _securityCodeController,
                               style: _isRedText([ValidState.invalidCVC, ValidState.missingCVC])
                                   ? _errorTextStyle
@@ -263,7 +283,7 @@ class _CardTextFieldState extends State<CardTextField> {
                                 return null;
                               },
                               onChanged: (str) {
-                                setState(() => _cardDetails.expirationDate = str);
+                                setState(() => _cardDetails.expirationString = str);
                                 if (str.length == _cardDetails.provider?.cvcLength) {
                                   _currentCardEntryStepController.add(CardEntryStep.postal);
                                 }
@@ -284,19 +304,18 @@ class _CardTextFieldState extends State<CardTextField> {
                             duration: const Duration(milliseconds: 250),
                             width: _postalFieldWidth,
                             child: TextFormField(
-                              focusNode: _postalCodeFocusNode,
+                              key: const Key('postal_field'),
+                              focusNode: postalCodeFocusNode,
                               controller: _postalCodeController,
                               style: _isRedText([ValidState.invalidZip, ValidState.missingZip])
                                   ? _errorTextStyle
                                   : _normalTextStyle,
                               validator: (content) {
-                                print('validate zipcode');
                                 if (content == null || content.isEmpty) {
                                   return null;
                                 }
                                 setState(() => _cardDetails.postalCode = content);
 
-print('checking here\n$_cardDetails');
                                 if (_cardDetails.validState == ValidState.invalidZip) {
                                   _setValidationState('The postal code you entered is not correct.');
                                 } else if (_cardDetails.validState == ValidState.missingZip) {
@@ -305,13 +324,11 @@ print('checking here\n$_cardDetails');
                                 return null;
                               },
                               onChanged: (str) {
-                                  print('here');
                                 setState(() => _cardDetails.postalCode = str);
-                                print(_cardDetails.toString());
                               },
                               onFieldSubmitted: (_) {
-                                  print('finished');
                                 _validateFields();
+                                widget.onCardDetailsComplete(_cardDetails);
                               },
                               decoration: InputDecoration(
                                 hintText: _currentStep == CardEntryStep.number ? '' : 'Postal Code',
@@ -366,9 +383,8 @@ print('checking here\n$_cardDetails');
   }
 
   void _scrollRow(CardEntryStep step) {
-    final dur = Duration(milliseconds: 150);
-    final cur = Curves.easeOut;
-    final fieldLen = widget.width;
+    const dur = Duration(milliseconds: 150);
+    const cur = Curves.easeOut;
     switch (step) {
       case CardEntryStep.number:
         _horizontalScrollController.animateTo(0.0, duration: dur, curve: cur);
@@ -398,16 +414,16 @@ print('checking here\n$_cardDetails');
     });
     switch (step) {
       case CardEntryStep.number:
-        _cardNumberFocusNode.requestFocus();
+        cardNumberFocusNode.requestFocus();
         break;
       case CardEntryStep.exp:
-        _expirationFocusNode.requestFocus();
+        expirationFocusNode.requestFocus();
         break;
       case CardEntryStep.cvc:
-        _securityCodeFocusNode.requestFocus();
+        securityCodeFocusNode.requestFocus();
         break;
       case CardEntryStep.postal:
-        _postalCodeFocusNode.requestFocus();
+        postalCodeFocusNode.requestFocus();
         break;
     }
     if (!_isWideFormat) {

@@ -1,20 +1,29 @@
-
 import 'package:flutter/foundation.dart';
 
 class CardDetails {
-  CardDetails({required this.cardNumber, required String? securityCode, required this.expirationDate}) {
+  CardDetails({
+    required dynamic cardNumber,
+    required String? securityCode,
+    required this.expirationString,
+    required this.postalCode,
+  }) : _cardNumber = cardNumber {
     this.securityCode = int.tryParse(securityCode ?? '');
     checkIsValid();
   }
 
   factory CardDetails.blank() {
-    return CardDetails(cardNumber: null, securityCode: null, expirationDate: null);
+    return CardDetails(cardNumber: null, securityCode: null, expirationString: null, postalCode: null);
   }
 
-  String? cardNumber;
+  String? get cardNumber => _cardNumber?.replaceAll(' ', '');
+
+  set cardNumber(String? num) => _cardNumber = num;
+
+  String? _cardNumber;
   int? securityCode;
   String? postalCode;
-  String? expirationDate;
+  String? expirationString;
+  DateTime? expirationDate;
   bool _complete = false;
   ValidState _validState = ValidState.blank;
   int _lastCheckHash = 0;
@@ -25,7 +34,8 @@ class CardDetails {
     return _validState;
   }
 
-  bool get cardNumberFilled => provider == null || provider?.cardLength == cardNumber?.replaceAll(' ', '').length;
+  bool get cardNumberFilled =>
+      _cardNumber == null ? false : (provider?.cardLength ?? 16) == _cardNumber!.replaceAll(' ', '').length;
 
   bool get isComplete {
     checkIsValid();
@@ -43,12 +53,12 @@ class CardDetails {
       }
 
       _lastCheckHash = currentHash;
-      if (cardNumber == null && expirationDate == null && securityCode == null && postalCode == null) {
+      if (_cardNumber == null && expirationString == null && securityCode == null && postalCode == null) {
         _complete = false;
         _validState = ValidState.blank;
         return;
       }
-      final nums = cardNumber!
+      final nums = _cardNumber!
           .replaceAll(' ', '')
           .split('')
           .map(
@@ -60,24 +70,30 @@ class CardDetails {
         _validState = ValidState.invalidCard;
         return;
       }
-      if (cardNumber == null || !cardNumberFilled) {
+      if (_cardNumber == null || !cardNumberFilled) {
         _complete = false;
         _validState = ValidState.missingCard;
         return;
       }
-      if (expirationDate == null) {
+      if (expirationString == null) {
         _complete = false;
         _validState = ValidState.missingDate;
         return;
       }
-      final expSplits = expirationDate!.split('/');
+      final expSplits = expirationString!.split('/');
       if (expSplits.length != 2 || expSplits.last == '') {
         _complete = false;
         _validState = ValidState.missingDate;
         return;
       }
-      final date = DateTime(2000 + int.parse(expSplits.last),
-          int.parse(expSplits.first[0] == '0' ? expSplits.first[1] : expSplits.first));
+      final month = int.parse(expSplits.first[0] == '0' ? expSplits.first[1] : expSplits.first);
+      if (month < 1 || month > 12) {
+        _complete = false;
+        _validState = ValidState.invalidMonth;
+        return;
+      }
+      final year = 2000 + int.parse(expSplits.last);
+      final date = DateTime(year, month);
       if (date.isBefore(DateTime.now())) {
         _complete = false;
         _validState = ValidState.dateTooEarly;
@@ -87,6 +103,7 @@ class CardDetails {
         _validState = ValidState.dateTooLate;
         return;
       }
+      expirationDate = date;
       if (securityCode == null) {
         _complete = false;
         _validState = ValidState.missingCVC;
@@ -114,42 +131,42 @@ class CardDetails {
   }
 
   int get hash {
-    return Object.hash(cardNumber, expirationDate, securityCode, postalCode);
+    return Object.hash(_cardNumber, expirationString, securityCode, postalCode);
   }
 
   void detectCardProvider() {
     bool found = false;
-    if (cardNumber == null) {
+    if (_cardNumber == null) {
       return;
     }
     for (var cardPvd in providers) {
-      if (cardPvd.INN_VALID_NUMS != null) {
+      if (cardPvd.innValidNums != null) {
         // trim card number to correct length
-        String trimmedNum = cardNumber!;
-        String innNumStr = '${cardPvd.INN_VALID_NUMS!.first}';
+        String trimmedNum = _cardNumber!;
+        String innNumStr = '${cardPvd.innValidNums!.first}';
         if (trimmedNum.length > innNumStr.length) {
           trimmedNum = trimmedNum.substring(0, innNumStr.length);
         }
         final num = int.tryParse(trimmedNum);
         if (num == null) continue;
 
-        if (cardPvd.INN_VALID_NUMS!.contains(num)) {
+        if (cardPvd.innValidNums!.contains(num)) {
           provider = cardPvd;
           found = true;
           break;
         }
       }
-      if (cardPvd.INN_VALID_RANGES != null) {
+      if (cardPvd.innValidRanges != null) {
         // trim card number to correct length
-        String trimmedNum = cardNumber!;
-        String innNumStr = '${cardPvd.INN_VALID_RANGES!.first.low}';
+        String trimmedNum = _cardNumber!;
+        String innNumStr = '${cardPvd.innValidRanges!.first.low}';
         if (trimmedNum.length > innNumStr.length) {
           trimmedNum = trimmedNum.substring(0, innNumStr.length);
         }
         final num = int.tryParse(trimmedNum);
         if (num == null) continue;
 
-        if (cardPvd.INN_VALID_RANGES!.any((range) => range.isWithin(num))) {
+        if (cardPvd.innValidRanges!.any((range) => range.isWithin(num))) {
           provider = cardPvd;
           found = true;
           break;
@@ -157,13 +174,12 @@ class CardDetails {
       }
     }
     if (!found) provider = null;
-    // print('Got provider $provider');
   }
 
   @override
-    String toString() {
-      return 'Number: "$cardNumber" - Exp: "$expirationDate" CVC: $securityCode Zip: "$postalCode"';
-    }
+  String toString() {
+    return 'Number: "$_cardNumber" - Exp: "$expirationString" CVC: $securityCode Zip: "$postalCode"';
+  }
 }
 
 enum ValidState {
@@ -173,6 +189,7 @@ enum ValidState {
   missingCard,
   invalidCard,
   missingDate,
+  invalidMonth,
   dateTooEarly,
   dateTooLate,
   missingCVC,
@@ -182,31 +199,27 @@ enum ValidState {
 }
 
 enum CardProviderID {
-  AmericanExpress,
-  DinersClub,
-  DiscoverCard,
-  Mastercard,
-  JCB,
-  Visa,
+  americanExpress,
+  dinersClub,
+  discoverCard,
+  mastercard,
+  jcb,
+  visa,
 }
 
 class CardProvider {
   CardProviderID id;
-  List<int>? INN_VALID_NUMS;
-  List<Range>? INN_VALID_RANGES;
+  List<int>? innValidNums;
+  List<Range>? innValidRanges;
   int cardLength;
   int cvcLength;
 
   CardProvider(
-      {required this.id,
-      required this.cardLength,
-      required this.cvcLength,
-      this.INN_VALID_NUMS,
-      this.INN_VALID_RANGES}) {
+      {required this.id, required this.cardLength, required this.cvcLength, this.innValidNums, this.innValidRanges}) {
     // Must provide one or the other
-    assert(INN_VALID_NUMS != null || INN_VALID_RANGES != null);
+    assert(innValidNums != null || innValidRanges != null);
     // Do not provide empty list of valid nums
-    assert(INN_VALID_NUMS == null || INN_VALID_NUMS!.isNotEmpty);
+    assert(innValidNums == null || innValidNums!.isNotEmpty);
   }
 
   @override
@@ -230,41 +243,41 @@ class Range {
 
 List<CardProvider> providers = [
   CardProvider(
-    id: CardProviderID.AmericanExpress,
+    id: CardProviderID.americanExpress,
     cardLength: 15,
     cvcLength: 4,
-    INN_VALID_NUMS: [34, 37],
+    innValidNums: [34, 37],
   ),
   CardProvider(
-    id: CardProviderID.DinersClub,
+    id: CardProviderID.dinersClub,
     cardLength: 16,
     cvcLength: 3,
-    INN_VALID_NUMS: [30, 36, 38, 39],
+    innValidNums: [30, 36, 38, 39],
   ),
   CardProvider(
-    id: CardProviderID.DiscoverCard,
+    id: CardProviderID.discoverCard,
     cardLength: 16,
     cvcLength: 3,
-    INN_VALID_NUMS: [60, 65],
-    INN_VALID_RANGES: [Range(low: 644, high: 649)],
+    innValidNums: [60, 65],
+    innValidRanges: [Range(low: 644, high: 649)],
   ),
   CardProvider(
-    id: CardProviderID.JCB,
+    id: CardProviderID.jcb,
     cardLength: 16,
     cvcLength: 3,
-    INN_VALID_NUMS: [35],
+    innValidNums: [35],
   ),
   CardProvider(
-    id: CardProviderID.Mastercard,
+    id: CardProviderID.mastercard,
     cardLength: 16,
     cvcLength: 3,
-    INN_VALID_RANGES: [Range(low: 22, high: 27), Range(low: 51, high: 55)],
+    innValidRanges: [Range(low: 22, high: 27), Range(low: 51, high: 55)],
   ),
   CardProvider(
-    id: CardProviderID.Visa,
+    id: CardProviderID.visa,
     cardLength: 16,
     cvcLength: 3,
-    INN_VALID_NUMS: [4],
+    innValidNums: [4],
   )
 ];
 

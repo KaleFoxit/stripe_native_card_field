@@ -1,39 +1,38 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
 For information about how to write a good package README, see the guide for
 [writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+A simple and clean Stripe Element Card clone, rebuilt in native Flutter widgets.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+This is not an officially maintained package by Stripe, but using the html stripe
+elements they provide with flutter is less than ideal.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Card number validation
+- No more depending on Flutter Webview
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+- Install the package by running `flutter pub add stripe_native_card_field`
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Include the package in a file:
 
 ```dart
-const like = 'sample';
+import 'package:stripe_native_card_field/stripe_native_card_field.dart';
+```
+
+```dart
+CardTextField(
+  width: 500,
+  onCardDetailsComplete: (details) {
+    // Save the card details to use with your call to Stripe, or whoever
+    setState(() => _cardDetails = details);
+  },
+);
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Repository located [here](https://git.fosscat.com/n8r/stripe_native_card_field)
