@@ -1,6 +1,3 @@
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
-
 A simple and clean Stripe Element Card clone, rebuilt in native Flutter widgets.
 
 This is not an officially maintained package by Stripe, but using the html stripe
