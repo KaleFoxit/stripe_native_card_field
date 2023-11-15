@@ -31,8 +31,9 @@ class CardTextField extends StatefulWidget {
 
   final InputDecoration? inputDecoration; // TODO unapplied style
   final BoxDecoration? boxDecoration; // TODO unapplied style
-  final BoxDecoration? errorBoxDecoration; // TODO unapplied style 
+  final BoxDecoration? errorBoxDecoration; // TODO unapplied style
   final double width;
+
   /// Callback that returns the completed CardDetails object
   final void Function(CardDetails) onCardDetailsComplete;
   final double? height;
@@ -403,7 +404,7 @@ class CardTextFieldState extends State<CardTextField> {
   }
 
   /// Used when `_isWideFormat == false`, scrolls
-  /// the `_horizontalScrollController` to a given offset 
+  /// the `_horizontalScrollController` to a given offset
   void _scrollRow(CardEntryStep step) {
     const dur = Duration(milliseconds: 150);
     const cur = Curves.easeOut;
@@ -515,7 +516,7 @@ class CardNumberInputFormatter implements TextInputFormatter {
 }
 
 /// Formatter that adds a backslash '/' character in between
-/// the month and the year for the expiration date. 
+/// the month and the year for the expiration date.
 class CardExpirationFormatter implements TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {

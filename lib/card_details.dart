@@ -37,7 +37,6 @@ class CardDetails {
   int _lastCheckHash = 0;
   CardProvider? provider;
 
-
   /// Checks the validity of the `CardDetails` and returns the result.
   ValidState get validState {
     checkIsValid();
@@ -59,7 +58,7 @@ class CardDetails {
   }
 
   /// The maximum length of the INN (identifier)
-  /// of a card provider. 
+  /// of a card provider.
   int get maxINNLength => 4;
 
   /// Validates each field of the `CardDetails` object in entry order,
@@ -265,11 +264,11 @@ enum CardProviderID {
 
 /// Encapsulates criteria for Card Providers in the U.S.
 /// Used by `CardDetails.detectCardProvider()` to determine
-/// a card's Provider. 
+/// a card's Provider.
 class CardProvider {
   CardProviderID id;
   List<int>? innValidNums;
-  List<_Range>? innValidRanges;
+  List<Range>? innValidRanges;
   int cardLength;
   int cvcLength;
 
@@ -289,12 +288,12 @@ class CardProvider {
 
 /// Object for `CardProvider` to determine valid number ranges.
 /// A loose wrapper on a tuple, that provides assertion of
-/// valid inputs and the `isWithin()` helper function. 
-class _Range {
+/// valid inputs and the `isWithin()` helper function.
+class Range {
   int high;
   int low;
 
-  _Range({required this.low, required this.high}) {
+  Range({required this.low, required this.high}) {
     assert(low <= high);
   }
 
@@ -328,7 +327,7 @@ List<CardProvider> _providers = [
     cardLength: 16,
     cvcLength: 3,
     innValidNums: [60, 65],
-    innValidRanges: [_Range(low: 644, high: 649)],
+    innValidRanges: [Range(low: 644, high: 649)],
   ),
   CardProvider(
     id: CardProviderID.jcb,
@@ -340,7 +339,7 @@ List<CardProvider> _providers = [
     id: CardProviderID.mastercard,
     cardLength: 16,
     cvcLength: 3,
-    innValidRanges: [_Range(low: 22, high: 27), _Range(low: 51, high: 55)],
+    innValidRanges: [Range(low: 22, high: 27), Range(low: 51, high: 55)],
   ),
   CardProvider(
     id: CardProviderID.visa,
