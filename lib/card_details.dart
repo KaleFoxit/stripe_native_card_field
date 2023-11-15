@@ -1,5 +1,10 @@
 import 'package:flutter/foundation.dart';
 
+/// Class encapsulating the card's data
+/// as well as validation of the data.
+///
+/// `CardDetails.validState == ValidState.ok`
+/// when fields are filled and validated as correct.
 class CardDetails {
   CardDetails({
     required dynamic cardNumber,
@@ -11,10 +16,13 @@ class CardDetails {
     checkIsValid();
   }
 
+  /// Sets every field to null, a default
+  /// `CardDetails` when nothing has been entered.
   factory CardDetails.blank() {
     return CardDetails(cardNumber: null, securityCode: null, expirationString: null, postalCode: null);
   }
 
+  /// Returns the CardNumber as a `String` with the spaces removed.
   String? get cardNumber => _cardNumber?.replaceAll(' ', '');
 
   set cardNumber(String? num) => _cardNumber = num;
@@ -29,22 +37,36 @@ class CardDetails {
   int _lastCheckHash = 0;
   CardProvider? provider;
 
+
+  /// Checks the validity of the `CardDetails` and returns the result.
   ValidState get validState {
     checkIsValid();
     return _validState;
   }
 
+  // TODO rename to be more clear
+  /// Returns true if `_cardNumber` is null, or
+  /// if the _cardNumber matches the detected `provider`'s
+  /// card lenght, defaulting to 16.
   bool get cardNumberFilled =>
       _cardNumber == null ? false : (provider?.cardLength ?? 16) == _cardNumber!.replaceAll(' ', '').length;
 
+  /// Returns true if all details are complete and valid
+  /// otherwise, return false.
   bool get isComplete {
     checkIsValid();
     return _complete;
   }
 
-  int get minInnLength => 1;
+  /// The maximum length of the INN (identifier)
+  /// of a card provider. 
   int get maxINNLength => 4;
 
+  /// Validates each field of the `CardDetails` object in entry order,
+  /// namely _cardNumber -> expirationString -> securityCode -> postalCode
+  ///
+  /// If all fields are filled out and valid, `CardDetails.isComplete == true`
+  /// and `CardDetails.validState == ValidState.ok`.
   void checkIsValid() {
     try {
       int currentHash = hash;
@@ -65,7 +87,7 @@ class CardDetails {
             (i) => int.parse(i),
           )
           .toList();
-      if (!luhnAlgorithmCheck(nums)) {
+      if (!_luhnAlgorithmCheck(nums)) {
         _complete = false;
         _validState = ValidState.invalidCard;
         return;
@@ -130,16 +152,21 @@ class CardDetails {
     }
   }
 
+  /// Provides a hash of the CardDetails object
+  /// Hashes `_cardNumber`, `expirationString`,
+  /// `securityCode`, and `postalCode`.
   int get hash {
     return Object.hash(_cardNumber, expirationString, securityCode, postalCode);
   }
 
+  /// Iterates over the list `_providers`, detecting which
+  /// provider the current `_cardNumber` falls under.
   void detectCardProvider() {
     bool found = false;
     if (_cardNumber == null) {
       return;
     }
-    for (var cardPvd in providers) {
+    for (var cardPvd in _providers) {
       if (cardPvd.innValidNums != null) {
         // trim card number to correct length
         String trimmedNum = _cardNumber!;
@@ -180,8 +207,36 @@ class CardDetails {
   String toString() {
     return 'Number: "$_cardNumber" - Exp: "$expirationString" CVC: $securityCode Zip: "$postalCode"';
   }
+
+  /// https://en.wikipedia.org/wiki/Luhn_algorithm
+  /// The Luhn algorithm is used in industry to check
+  /// for valid credit / debit card numbers
+  ///
+  /// The algorithm adds together all the numbers, every
+  /// other number is doubled, then the sum is checked to
+  /// see if it is a multiple of 10.
+  /// https://en.wikipedia.org/wiki/Luhn_algorithm
+  bool _luhnAlgorithmCheck(List<int> digits) {
+    int sum = 0;
+    bool isSecond = false;
+    for (int i = digits.length - 1; i >= 0; i--) {
+      int d = digits[i];
+      if (isSecond) {
+        d *= 2;
+
+        if (d > 9) {
+          d -= 9;
+        }
+      }
+
+      sum += d;
+      isSecond = !isSecond;
+    }
+    return (sum % 10) == 0;
+  }
 }
 
+/// Enum of validation states a `CardDetails` object can have.
 enum ValidState {
   ok,
   error,
@@ -198,6 +253,7 @@ enum ValidState {
   invalidZip,
 }
 
+/// Enum of supported U.S. Card Providers
 enum CardProviderID {
   americanExpress,
   dinersClub,
@@ -207,10 +263,13 @@ enum CardProviderID {
   visa,
 }
 
+/// Encapsulates criteria for Card Providers in the U.S.
+/// Used by `CardDetails.detectCardProvider()` to determine
+/// a card's Provider. 
 class CardProvider {
   CardProviderID id;
   List<int>? innValidNums;
-  List<Range>? innValidRanges;
+  List<_Range>? innValidRanges;
   int cardLength;
   int cvcLength;
 
@@ -228,20 +287,30 @@ class CardProvider {
   }
 }
 
-class Range {
+/// Object for `CardProvider` to determine valid number ranges.
+/// A loose wrapper on a tuple, that provides assertion of
+/// valid inputs and the `isWithin()` helper function. 
+class _Range {
   int high;
   int low;
 
-  Range({required this.low, required this.high}) {
+  _Range({required this.low, required this.high}) {
     assert(low <= high);
   }
 
+  /// Returns bool whether or not `val` is between `low` and `high`.
+  /// The range includes the `val`, so
+  /// ```dart
+  /// Range(low: 1, high: 3).isWithin(3);
+  /// ```
+  /// would return true.
   bool isWithin(int val) {
     return low <= val && val <= high;
   }
 }
 
-List<CardProvider> providers = [
+/// List of CardProviders for US-based Credit / Debit Cards.
+List<CardProvider> _providers = [
   CardProvider(
     id: CardProviderID.americanExpress,
     cardLength: 15,
@@ -259,7 +328,7 @@ List<CardProvider> providers = [
     cardLength: 16,
     cvcLength: 3,
     innValidNums: [60, 65],
-    innValidRanges: [Range(low: 644, high: 649)],
+    innValidRanges: [_Range(low: 644, high: 649)],
   ),
   CardProvider(
     id: CardProviderID.jcb,
@@ -271,7 +340,7 @@ List<CardProvider> providers = [
     id: CardProviderID.mastercard,
     cardLength: 16,
     cvcLength: 3,
-    innValidRanges: [Range(low: 22, high: 27), Range(low: 51, high: 55)],
+    innValidRanges: [_Range(low: 22, high: 27), _Range(low: 51, high: 55)],
   ),
   CardProvider(
     id: CardProviderID.visa,
@@ -280,29 +349,3 @@ List<CardProvider> providers = [
     innValidNums: [4],
   )
 ];
-
-// https://en.wikipedia.org/wiki/Luhn_algorithm
-// The Luhn algorithm is used in industry to check
-// for valid credit / debit card numbers
-//
-// The algorithm adds together all the numbers, every
-// other number is doubled, then the sum is checked to
-// see if it is a multiple of 10.
-bool luhnAlgorithmCheck(List<int> digits) {
-  int sum = 0;
-  bool isSecond = false;
-  for (int i = digits.length - 1; i >= 0; i--) {
-    int d = digits[i];
-    if (isSecond) {
-      d *= 2;
-
-      if (d > 9) {
-        d -= 9;
-      }
-    }
-
-    sum += d;
-    isSecond = !isSecond;
-  }
-  return (sum % 10) == 0;
-}

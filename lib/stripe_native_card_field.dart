@@ -6,8 +6,18 @@ import 'card_provider_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Enum to track each step of the card detail
+/// entry process.
 enum CardEntryStep { number, exp, cvc, postal }
 
+/// A uniform text field for entering card details, based
+/// on the behavior of Stripe's various html elements.
+///
+/// Required `width` and `onCardDetailsComplete`.
+///
+/// If the provided `width < 450.0`, the `CardTextField`
+/// will scroll its content horizontally with the cursor
+/// to compensate.
 class CardTextField extends StatefulWidget {
   const CardTextField(
       {Key? key,
@@ -21,8 +31,9 @@ class CardTextField extends StatefulWidget {
 
   final InputDecoration? inputDecoration; // TODO unapplied style
   final BoxDecoration? boxDecoration; // TODO unapplied style
-  final BoxDecoration? errorBoxDecoration; // TODO unapplied style
+  final BoxDecoration? errorBoxDecoration; // TODO unapplied style 
   final double width;
+  /// Callback that returns the completed CardDetails object
   final void Function(CardDetails) onCardDetailsComplete;
   final double? height;
 
@@ -30,6 +41,9 @@ class CardTextField extends StatefulWidget {
   State<CardTextField> createState() => CardTextFieldState();
 }
 
+/// State Widget for CardTextField
+/// Should not be used directly, create a
+/// `CardTextField()` instead.
 @visibleForTesting
 class CardTextFieldState extends State<CardTextField> {
   late TextEditingController _cardNumberController;
@@ -361,10 +375,14 @@ class CardTextFieldState extends State<CardTextField> {
     );
   }
 
+  /// Provided a list of `ValidState`, returns whether
+  /// make the text field red
   bool _isRedText(List<ValidState> args) {
     return _showBorderError && args.contains(_cardDetails.validState);
   }
 
+  /// Helper function to change the `_showBorderError` and
+  /// `_validationErrorText`.
   void _setValidationState(String? text) {
     setState(() {
       _validationErrorText = text;
@@ -372,6 +390,8 @@ class CardTextFieldState extends State<CardTextField> {
     });
   }
 
+  /// Calls `validate()` on the form state and resets
+  /// the validation state
   void _validateFields() {
     _validationErrorText = null;
     _formFieldKey.currentState!.validate();
@@ -382,6 +402,8 @@ class CardTextFieldState extends State<CardTextField> {
     return;
   }
 
+  /// Used when `_isWideFormat == false`, scrolls
+  /// the `_horizontalScrollController` to a given offset 
   void _scrollRow(CardEntryStep step) {
     const dur = Duration(milliseconds: 150);
     const cur = Curves.easeOut;
@@ -402,6 +424,9 @@ class CardTextFieldState extends State<CardTextField> {
     }
   }
 
+  /// Function that is listening to the `_currentCardEntryStepController`
+  /// StreamController. Manages validation and tracking of the current step
+  /// as well as scrolling the text fields.
   void _onStepChange(CardEntryStep step) {
     if (_currentStep.index < step.index) {
       _validateFields();
@@ -431,6 +456,11 @@ class CardTextFieldState extends State<CardTextField> {
     }
   }
 
+  /// Function that is listening to the keyboard events.
+  ///
+  /// This provides the functionality of hitting backspace
+  /// and the focus changing between fields when the current
+  /// entry step is empty.
   void _backspaceTransitionListener(RawKeyEvent value) {
     if (!value.isKeyPressed(LogicalKeyboardKey.backspace)) {
       return;
@@ -461,6 +491,8 @@ class CardTextFieldState extends State<CardTextField> {
   }
 }
 
+/// Formatter that adds the appropriate space ' ' characters
+/// to make the card number display cleanly.
 class CardNumberInputFormatter implements TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
@@ -482,6 +514,8 @@ class CardNumberInputFormatter implements TextInputFormatter {
   }
 }
 
+/// Formatter that adds a backslash '/' character in between
+/// the month and the year for the expiration date. 
 class CardExpirationFormatter implements TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
@@ -494,11 +528,6 @@ class CardExpirationFormatter implements TextInputFormatter {
       }
     }
     if (cardExp.length == 2 && oldValue.text.length == 3) return newValue;
-    // Auto delete the slash on backspace
-    // if (cardExp.length == 3 && oldValue.text.length == 4 && cardExp[2] == '/') {
-    //   return newValue.copyWith(
-    //       text: cardExp.substring(0, 2), selection: TextSelection.collapsed(offset: cardExp.length - 1));
-    // }
 
     cardExp = cardExp.replaceAll('/', '');
     StringBuffer buffer = StringBuffer();

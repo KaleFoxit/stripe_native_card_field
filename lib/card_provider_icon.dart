@@ -2,6 +2,10 @@ import 'card_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+/// Widget that provides the various supported card provider's
+/// icons, as well as a default and error card icon.
+///
+/// To see a list of supported card providers, see `CardDetails.provider`.
 class CardProviderIcon extends StatefulWidget {
   const CardProviderIcon({required this.cardDetails, super.key});
 
@@ -77,6 +81,7 @@ class _CardProviderIconState extends State<CardProviderIcon> {
     );
   }
 
+  /// Helper function to create the SVG icons provided a `CardProviderID`.
   Widget createCardSvg(CardProviderID id) {
     return SvgPicture.string(
       key: Key('${id.name}-card'),
