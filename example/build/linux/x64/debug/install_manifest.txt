@@ -1,0 +1,12 @@
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/example
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/icudtl.dat
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/lib/libflutter_linux_gtk.so
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/fonts/MaterialIcons-Regular.otf
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/version.json
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/FontManifest.json
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/AssetManifest.bin
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/AssetManifest.json
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/kernel_blob.bin
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/NOTICES.Z
+/media/Source/flutter/stripe_native_card_field/example/build/linux/x64/debug/bundle/data/flutter_assets/shaders/ink_sparkle.frag

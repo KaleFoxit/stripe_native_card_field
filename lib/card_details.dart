@@ -7,12 +7,11 @@ import 'package:flutter/foundation.dart';
 /// when fields are filled and validated as correct.
 class CardDetails {
   CardDetails({
-    required dynamic cardNumber,
-    required String? securityCode,
+    required String? cardNumber,
+    required this.securityCode,
     required this.expirationString,
     required this.postalCode,
   }) : _cardNumber = cardNumber {
-    this.securityCode = int.tryParse(securityCode ?? '');
     checkIsValid();
   }
 
@@ -28,7 +27,7 @@ class CardDetails {
   set cardNumber(String? num) => _cardNumber = num;
 
   String? _cardNumber;
-  int? securityCode;
+  String? securityCode;
   String? postalCode;
   String? expirationString;
   DateTime? expirationDate;
@@ -37,11 +36,16 @@ class CardDetails {
   int _lastCheckHash = 0;
   CardProvider? provider;
 
+  set overrideValidState(ValidState state) => _validState = state;
+
   /// Checks the validity of the `CardDetails` and returns the result.
   ValidState get validState {
     checkIsValid();
     return _validState;
   }
+
+  String get expMonth => isComplete ? expirationString!.split('/').first : '';
+  String get expYear => isComplete ? expirationString!.split('/').last : '';
 
   // TODO rename to be more clear
   /// Returns true if `_cardNumber` is null, or
@@ -128,6 +132,11 @@ class CardDetails {
       if (securityCode == null) {
         _complete = false;
         _validState = ValidState.missingCVC;
+        return;
+      }
+      if (provider != null && securityCode!.length != provider!.cvcLength) {
+        _complete = false;
+        _validState = ValidState.invalidCVC;
         return;
       }
       if (postalCode == null) {

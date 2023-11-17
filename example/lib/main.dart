@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:stripe_native_card_field/card_details.dart';
 import 'package:stripe_native_card_field/stripe_native_card_field.dart';
 
 void main() {
@@ -57,6 +58,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  ValidState? state;
+  String? errorText;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,15 +72,26 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Enter your card details below:',
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Enter your card details below:',
+              ),
             ),
             CardTextField(
-              width: 500,
-              onCardDetailsComplete: (details) {
+              width: 300,
+              stripePublishableKey: 'pk_live_YHfarauddQAhnNAsW1qqJha6',
+              onTokenReceived: (details) {
                 if (kDebugMode) print('Got card details: $details');
               },
             ),
+            ElevatedButton(
+              child: const Text('Set error'),
+              onPressed: () => setState(() {
+                errorText = 'There is a problem';
+                state = ValidState.invalidCard;
+              }),
+            )
           ],
         ),
       ),
