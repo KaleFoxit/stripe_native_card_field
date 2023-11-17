@@ -79,14 +79,16 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             CardTextField(
-              width: 300,
-              stripePublishableKey: 'pk_live_YHfarauddQAhnNAsW1qqJha6',
-              onTokenReceived: (details) {
+              width: 500,
+              stripePublishableKey: 'pk_test_abc123importantIDhere',
+              onStripeResponse: (details) {
                 if (kDebugMode) print('Got card details: $details');
               },
+              overrideValidState: state,
+              errorText: errorText,
             ),
             ElevatedButton(
-              child: const Text('Set error'),
+              child: const Text('Set manual error'),
               onPressed: () => setState(() {
                 errorText = 'There is a problem';
                 state = ValidState.invalidCard;
