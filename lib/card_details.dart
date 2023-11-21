@@ -32,14 +32,14 @@ class CardDetails {
   String? expirationString;
   DateTime? expirationDate;
   bool _complete = false;
-  ValidState _validState = ValidState.blank;
+  CardDetailsValidState _validState = CardDetailsValidState.blank;
   int _lastCheckHash = 0;
   CardProvider? provider;
 
-  set overrideValidState(ValidState state) => _validState = state;
+  set overrideValidState(CardDetailsValidState state) => _validState = state;
 
   /// Checks the validity of the `CardDetails` and returns the result.
-  ValidState get validState {
+  CardDetailsValidState get validState {
     checkIsValid();
     return _validState;
   }
@@ -80,7 +80,7 @@ class CardDetails {
       _lastCheckHash = currentHash;
       if (_cardNumber == null && expirationString == null && securityCode == null && postalCode == null) {
         _complete = false;
-        _validState = ValidState.blank;
+        _validState = CardDetailsValidState.blank;
         return;
       }
       final nums = _cardNumber!
@@ -92,71 +92,71 @@ class CardDetails {
           .toList();
       if (!_luhnAlgorithmCheck(nums)) {
         _complete = false;
-        _validState = ValidState.invalidCard;
+        _validState = CardDetailsValidState.invalidCard;
         return;
       }
       if (_cardNumber == null || !cardNumberFilled) {
         _complete = false;
-        _validState = ValidState.missingCard;
+        _validState = CardDetailsValidState.missingCard;
         return;
       }
       if (expirationString == null) {
         _complete = false;
-        _validState = ValidState.missingDate;
+        _validState = CardDetailsValidState.missingDate;
         return;
       }
       final expSplits = expirationString!.split('/');
       if (expSplits.length != 2 || expSplits.last == '') {
         _complete = false;
-        _validState = ValidState.missingDate;
+        _validState = CardDetailsValidState.missingDate;
         return;
       }
       final month = int.parse(expSplits.first[0] == '0' ? expSplits.first[1] : expSplits.first);
       if (month < 1 || month > 12) {
         _complete = false;
-        _validState = ValidState.invalidMonth;
+        _validState = CardDetailsValidState.invalidMonth;
         return;
       }
       final year = 2000 + int.parse(expSplits.last);
       final date = DateTime(year, month);
       if (date.isBefore(DateTime.now())) {
         _complete = false;
-        _validState = ValidState.dateTooEarly;
+        _validState = CardDetailsValidState.dateTooEarly;
         return;
       } else if (date.isAfter(DateTime.now().add(const Duration(days: 365 * 50)))) {
         _complete = false;
-        _validState = ValidState.dateTooLate;
+        _validState = CardDetailsValidState.dateTooLate;
         return;
       }
       expirationDate = date;
       if (securityCode == null) {
         _complete = false;
-        _validState = ValidState.missingCVC;
+        _validState = CardDetailsValidState.missingCVC;
         return;
       }
       if (provider != null && securityCode!.length != provider!.cvcLength) {
         _complete = false;
-        _validState = ValidState.invalidCVC;
+        _validState = CardDetailsValidState.invalidCVC;
         return;
       }
       if (postalCode == null) {
         _complete = false;
-        _validState = ValidState.missingZip;
+        _validState = CardDetailsValidState.missingZip;
         return;
       }
       if (!RegExp(r'^\d{5}(-\d{4})?$').hasMatch(postalCode!)) {
         _complete = false;
-        _validState = ValidState.invalidZip;
+        _validState = CardDetailsValidState.invalidZip;
         return;
       }
       _complete = true;
-      _validState = ValidState.ok;
+      _validState = CardDetailsValidState.ok;
     } catch (err, st) {
       if (kDebugMode) {
         print('Error while validating CardDetails: $err\n$st');
       }
       _complete = false;
-      _validState = ValidState.error;
+      _validState = CardDetailsValidState.error;
     }
   }
 
@@ -245,7 +245,7 @@ class CardDetails {
 }
 
 /// Enum of validation states a `CardDetails` object can have.
-enum ValidState {
+enum CardDetailsValidState {
   ok,
   error,
   blank,

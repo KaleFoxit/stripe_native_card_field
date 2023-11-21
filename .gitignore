@@ -29,5 +29,3 @@ migrate_working_dir/
 .packages
 build/
 
-# Example flutter app
-example/
