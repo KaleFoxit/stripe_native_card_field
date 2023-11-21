@@ -1,3 +1,10 @@
+## 0.0.4
+
+- Fix for focus and soft keyboard on mobile devices
+- Added README gif to show `CardTextField` in action
+- Added Icon color customization to `CardProviderIcon` widget
+- Fleshed out a dark mode styling example
+
 ## 0.0.3
 
 Lots of improvements!

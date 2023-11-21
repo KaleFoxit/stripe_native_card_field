@@ -25,3 +25,10 @@ flutter:
 
   uses-material-design: true
 
+
+
+  fonts:
+    - family: Lato
+      fonts:
+        - asset: assets/Lato-Medium.ttf
+          weight: 400
