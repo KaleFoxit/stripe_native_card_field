@@ -323,14 +323,15 @@ class CardTextFieldState extends State<CardTextField> {
             },
             // Enable scrolling on mobile and if its narrow (not all fields visible)
             onHorizontalDragUpdate: (details) {
+              const minOffset = 0.0;
+              final maxOffset = _horizontalScrollController.position.maxScrollExtent;
               if (!_isMobile || isWideFormat) return;
               final newOffset = _horizontalScrollController.offset - details.delta.dx;
 
-              final max = _horizontalScrollController.position.maxScrollExtent;
-              if (newOffset < -30.0) {
-                _horizontalScrollController.jumpTo(-30.0);
-              } else if (newOffset > max + 30.0) {
-                _horizontalScrollController.jumpTo(max + 30.0);
+              if (newOffset < minOffset) {
+                _horizontalScrollController.jumpTo(minOffset);
+              } else if (newOffset > maxOffset) {
+                _horizontalScrollController.jumpTo(maxOffset);
               } else {
                 _horizontalScrollController.jumpTo(newOffset);
               }
@@ -771,6 +772,12 @@ class CardTextFieldState extends State<CardTextField> {
       _validateFields();
     } else if (_currentStep != step) {
       _setValidationState(null);
+    }
+
+    // If field tapped, and has focus, dismiss focus
+    if (_currentStep == step && _hasFocus()) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      return;
     }
 
     setState(() {

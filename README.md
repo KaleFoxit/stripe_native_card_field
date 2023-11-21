@@ -1,22 +1,22 @@
 A simple and clean Stripe Element Card clone, rebuilt in native Flutter widgets.
 
+# DISCLAIMER
+
 This is not an officially maintained package by Stripe, but using the html stripe
-elements they provide with flutter is less than ideal.
+elements they provide in flutter was inconvenient for me, so I made this package.
 
-
-
-## Features
+# Features
 
 Got to use emojis and taglines for attention grabbing and algorithm hacking:
 
-⚡Blazingly fast ( its as fast as the rest of flutter )
-🧹Cleaner ( fewer dependencies than the official stripe elements )
-🛡️Safe and Supports all Flutter Targets ( its native flutter with minimal dependencies )
-☑️Seemless UI/UX ( hard to match stripe quality, but I think I got close )
-🔄Built-in Stripe Integration ( guess that one is obvious )
-☯️Chi Energy Boost ( alright I'm fishing... )
+- 󱐋  Blazingly fast ( its as fast as the rest of flutter )
+- 󰃢  Cleaner ( fewer dependencies than the official stripe elements )
+- 🛡  Safe and Supports all Flutter Targets ( its native flutter with minimal dependencies )
+- ☑  Seemless UI/UX ( hard to match stripe quality, but I think I got close )
+-   Built-in Stripe Integration ( guess that one is obvious )
+- ☯  Chi Energy Boost ( alright I'm fishing... )
 
-### Why StripeNativeCardField?
+## Why StripeNativeCardField?
 
 - Fewer dependencies: no more depending on Flutter Webview
 - Customizable: the entire field can inherit native Flutter styling, i.e. `BoxDecoration()`
@@ -27,19 +27,25 @@ The card data can either be retrieved with the `onCardDetailsComplete` callback,
 you can have the element automatically create a Stripe card token when the fields
 are filled out, and return the token with the `onTokenReceived` callback.
 
-### Mobile
+### Card Provider Detection
 
-![mobile showcase](./example/loading.gif)
+![Card Provider Detection](https://git.fosscat.com/n8r/stripe_native_card_field/raw/branch/main/readme_assets/card_provider_detection.gif)
 
-### Desktop
+[Documentation to supported card providers](https://pub.dev/documentation/stripe_native_card_field/latest/card_details/CardProviderID.html)
+
+Currently support American Express, Diners Club, Discover Card, Mastercard, Jcb, Visa
+
+### Customizable Styles
+
+![Customizable Style 1]()
+
+![Customizable Style 2]()
+
+### Cross Platform
 
 ![desktop showcase](./example/loading.gif)
 
-### Customizable
-
-![cumstomization showcase](./example/loading.gif)
-
-## Getting started
+# Getting started
 
 - Install the package by running `flutter pub add stripe_native_card_field`
 
@@ -82,6 +88,6 @@ CardTextField(
 For documentation on all of the available customizable aspects of the `CardTextField`, go
 to the [API docs here](https://pub.dev/documentation/stripe_native_card_field/latest/stripe_native_card_field/CardTextField-class.html).
 
-## Additional information
+# Additional information
 
 Repository located [here](https://git.fosscat.com/n8r/stripe_native_card_field)

@@ -261,7 +261,7 @@ enum CardDetailsValidState {
   invalidZip,
 }
 
-/// Enum of supported U.S. Card Providers
+/// Enum of supported Card Providers
 enum CardProviderID {
   americanExpress,
   dinersClub,
