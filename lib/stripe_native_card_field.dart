@@ -51,6 +51,8 @@ class CardTextField extends StatefulWidget {
     this.securityFieldWidth,
     this.postalFieldWidth,
     this.iconSize,
+    this.cardIconColor,
+    this.cardIconErrorColor,
     // this.loadingWidgetLocation = LoadingLocation.rightInside,
   }) : super(key: key) {
     if (stripePublishableKey != null) {
@@ -98,6 +100,12 @@ class CardTextField extends StatefulWidget {
 
   /// Overrides default icon size of the card provider, defaults to `Size(30.0, 20.0)`
   final Size? iconSize;
+
+  /// CSS string name of color or hex code for the card SVG icon to render
+  final String? cardIconColor;
+
+  /// CSS string name of color or hex code for the error card SVG icon to render
+  final String? cardIconErrorColor;
 
   /// Determines where the loading indicator appears when contacting stripe
   // final LoadingLocation loadingWidgetLocation;
@@ -367,6 +375,8 @@ class CardTextFieldState extends State<CardTextField> {
                             child: CardProviderIcon(
                               cardDetails: _cardDetails,
                               size: widget.iconSize,
+                              defaultCardColor: widget.cardIconColor,
+                              errorCardColor: widget.cardIconErrorColor,
                             ),
                           ),
                           SizedBox(
@@ -663,7 +673,7 @@ class CardTextFieldState extends State<CardTextField> {
             child: Text(
               // Spacing changes by like a pixel if its an empty string, slight jitter when error appears and disappears
               _validationErrorText ?? ' ',
-              style: const TextStyle(color: Colors.red),
+              style: _errorTextStyle,
             ),
           ),
         ),
