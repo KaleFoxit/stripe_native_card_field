@@ -24,7 +24,8 @@ void main() {
 
       final input = TestTextInput();
 
-      final cardState = tester.state(find.byType(CardTextField)) as CardTextFieldState;
+      final cardState =
+          tester.state(find.byType(CardTextField)) as CardTextFieldState;
 
       assertEmptyTextFields(tester, cardState.isWideFormat);
 
@@ -47,7 +48,8 @@ void main() {
       await tester.pump();
 
       expect(getTextFormField(expirationFieldKey).controller?.text, '');
-      expect(getTextFormField(cardFieldKey).controller?.text, '4242 4242 4242 424');
+      expect(getTextFormField(cardFieldKey).controller?.text,
+          '4242 4242 4242 424');
       expect(cardState.cardNumberFocusNode.hasFocus, true);
       expect(cardState.expirationFocusNode.hasFocus, false);
       // Postal code should now be gone
@@ -58,7 +60,8 @@ void main() {
       input.enterText("4242424242424242");
       await tester.pump();
 
-      expect(getTextFormField(cardFieldKey).controller?.text, '4242 4242 4242 4242');
+      expect(getTextFormField(cardFieldKey).controller?.text,
+          '4242 4242 4242 4242');
       expect(cardState.cardNumberFocusNode.hasFocus, false);
       expect(cardState.expirationFocusNode.hasFocus, true);
       // Postal code should move back into view
@@ -90,7 +93,10 @@ void main() {
       await tester.pump();
 
       final expectedCardDetails = CardDetails(
-          cardNumber: '4242 4242 4242 4242', securityCode: '333', expirationString: '10/28', postalCode: '91555');
+          cardNumber: '4242 4242 4242 4242',
+          securityCode: '333',
+          expirationString: '10/28',
+          postalCode: '91555');
       // print('${expectedCardDetails.toString()}\n${details?.toString()}');
       expect(details?.hash, expectedCardDetails.hash);
     },
@@ -110,7 +116,8 @@ void main() {
 
     final input = TestTextInput();
 
-    final cardState = tester.state(find.byType(CardTextField)) as CardTextFieldState;
+    final cardState =
+        tester.state(find.byType(CardTextField)) as CardTextFieldState;
 
     assertEmptyTextFields(tester, cardState.isWideFormat);
 
@@ -135,7 +142,8 @@ void main() {
     input.enterText('0055');
     await tester.pump();
 
-    expect(find.text("Your card's expiration month is invalid."), findsOneWidget);
+    expect(
+        find.text("Your card's expiration month is invalid."), findsOneWidget);
 
     await tester.sendKeyDownEvent(LogicalKeyboardKey.backspace);
     await tester.pump();
@@ -145,7 +153,8 @@ void main() {
     input.enterText('1099');
     await tester.pump();
 
-    expect(find.text("Your card's expiration year is invalid."), findsOneWidget);
+    expect(
+        find.text("Your card's expiration year is invalid."), findsOneWidget);
 
     await tester.sendKeyDownEvent(LogicalKeyboardKey.backspace);
     await tester.pump();
@@ -169,7 +178,8 @@ void main() {
     await input.receiveAction(TextInputAction.done);
     await tester.pump();
 
-    expect(find.text("The postal code you entered is not correct."), findsOneWidget);
+    expect(find.text("The postal code you entered is not correct."),
+        findsOneWidget);
 
     await tester.tap(find.byType(CardTextField));
 
@@ -182,7 +192,10 @@ void main() {
     await tester.pump();
 
     final expectedCardDetails = CardDetails(
-        cardNumber: '4242 4242 4242 4242', expirationString: '02/28', securityCode: '123', postalCode: '12345');
+        cardNumber: '4242 4242 4242 4242',
+        expirationString: '02/28',
+        securityCode: '123',
+        postalCode: '12345');
 
     expect(details?.hash, expectedCardDetails.hash);
   });
@@ -209,7 +222,8 @@ void assertEmptyTextFields(WidgetTester tester, bool isWideFormat) {
   // expect(find.text("Postal Code"), findsNothing);
 }
 
-Future<void> enterTextByKey(WidgetTester tester, {required String key, required String text}) async {
+Future<void> enterTextByKey(WidgetTester tester,
+    {required String key, required String text}) async {
   await tester.enterText(find.byKey(ValueKey(key)), text);
 }
 

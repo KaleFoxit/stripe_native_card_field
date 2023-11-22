@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:stripe_native_card_field/card_details.dart';
@@ -19,7 +18,8 @@ class MyApp extends StatelessWidget {
       title: 'Native Stripe Field Demo',
       theme: ThemeData(
         brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple, brightness: Brightness.dark),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -66,9 +66,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   print(details);
                 }
               },
-              textStyle: TextStyle(fontFamily: 'Lato', color: Colors.tealAccent),
-              hintTextStyle: TextStyle(fontFamily: 'Lato', color: Colors.teal),
-              errorTextStyle: TextStyle(color: Colors.purpleAccent),
+              textStyle:
+                  const TextStyle(fontFamily: 'Lato', color: Colors.tealAccent),
+              hintTextStyle: const TextStyle(fontFamily: 'Lato', color: Colors.teal),
+              errorTextStyle: const TextStyle(color: Colors.purpleAccent),
               boxDecoration: BoxDecoration(
                 color: Colors.black54,
                 border: Border.all(

@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-         body: Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -58,12 +58,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   print(details);
                 }
               },
-              // textStyle: TextStyle(fontSize: 24.0),
-              // cardFieldWidth: 260,
-              // expFieldWidth: 100.0,
-              // securityFieldWidth: 60.0,
-              // postalFieldWidth: 130.0,
-              // iconSize: Size(50.0, 35.0),
               overrideValidState: state,
               errorText: errorText,
             ),

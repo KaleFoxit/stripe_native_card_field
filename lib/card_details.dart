@@ -18,7 +18,11 @@ class CardDetails {
   /// Sets every field to null, a default
   /// `CardDetails` when nothing has been entered.
   factory CardDetails.blank() {
-    return CardDetails(cardNumber: null, securityCode: null, expirationString: null, postalCode: null);
+    return CardDetails(
+        cardNumber: null,
+        securityCode: null,
+        expirationString: null,
+        postalCode: null);
   }
 
   /// Returns the CardNumber as a `String` with the spaces removed.
@@ -51,8 +55,9 @@ class CardDetails {
   /// Returns true if `_cardNumber` is null, or
   /// if the _cardNumber matches the detected `provider`'s
   /// card lenght, defaulting to 16.
-  bool get cardNumberFilled =>
-      _cardNumber == null ? false : (provider?.cardLength ?? 16) == _cardNumber!.replaceAll(' ', '').length;
+  bool get cardNumberFilled => _cardNumber == null
+      ? false
+      : (provider?.cardLength ?? 16) == _cardNumber!.replaceAll(' ', '').length;
 
   /// Returns true if all details are complete and valid
   /// otherwise, return false.
@@ -78,7 +83,10 @@ class CardDetails {
       }
 
       _lastCheckHash = currentHash;
-      if (_cardNumber == null && expirationString == null && securityCode == null && postalCode == null) {
+      if (_cardNumber == null &&
+          expirationString == null &&
+          securityCode == null &&
+          postalCode == null) {
         _complete = false;
         _validState = CardDetailsValidState.blank;
         return;
@@ -111,7 +119,8 @@ class CardDetails {
         _validState = CardDetailsValidState.missingDate;
         return;
       }
-      final month = int.parse(expSplits.first[0] == '0' ? expSplits.first[1] : expSplits.first);
+      final month = int.parse(
+          expSplits.first[0] == '0' ? expSplits.first[1] : expSplits.first);
       if (month < 1 || month > 12) {
         _complete = false;
         _validState = CardDetailsValidState.invalidMonth;
@@ -123,7 +132,8 @@ class CardDetails {
         _complete = false;
         _validState = CardDetailsValidState.dateTooEarly;
         return;
-      } else if (date.isAfter(DateTime.now().add(const Duration(days: 365 * 50)))) {
+      } else if (date
+          .isAfter(DateTime.now().add(const Duration(days: 365 * 50)))) {
         _complete = false;
         _validState = CardDetailsValidState.dateTooLate;
         return;
@@ -282,7 +292,11 @@ class CardProvider {
   int cvcLength;
 
   CardProvider(
-      {required this.id, required this.cardLength, required this.cvcLength, this.innValidNums, this.innValidRanges}) {
+      {required this.id,
+      required this.cardLength,
+      required this.cvcLength,
+      this.innValidNums,
+      this.innValidRanges}) {
     // Must provide one or the other
     assert(innValidNums != null || innValidRanges != null);
     // Do not provide empty list of valid nums

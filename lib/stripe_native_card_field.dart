@@ -59,7 +59,8 @@ class CardTextField extends StatefulWidget {
       assert(stripePublishableKey!.startsWith('pk_'));
       if (kReleaseMode && !stripePublishableKey!.startsWith('pk_live_')) {
         log('StripeNativeCardField: *WARN* You are not using a live publishableKey in production.');
-      } else if ((kDebugMode || kProfileMode) && stripePublishableKey!.startsWith('pk_live_')) {
+      } else if ((kDebugMode || kProfileMode) &&
+          stripePublishableKey!.startsWith('pk_live_')) {
         log('StripeNativeCardField: *WARN* You are using a live stripe key in a debug environment, proceed with caution!');
         log('StripeNativeCardField: *WARN* Ideally you should be using your test keys whenever not in production.');
       }
@@ -198,7 +199,7 @@ class CardTextFieldState extends State<CardTextField> {
 
   String? _validationErrorText;
   bool _showBorderError = false;
-  final _isMobile = Platform.isAndroid || Platform.isIOS;
+  final _isMobile = kIsWeb ? false : Platform.isAndroid || Platform.isIOS;
 
   /// If a request to Stripe is being made
   bool _loading = false;
@@ -220,9 +221,12 @@ class CardTextFieldState extends State<CardTextField> {
 
     // No way to get backspace events on soft keyboards, so add invisible character to detect delete
     _cardNumberController = TextEditingController();
-    _expirationController = TextEditingController(text: _isMobile ? '\u200b' : '');
-    _securityCodeController = TextEditingController(text: _isMobile ? '\u200b' : '');
-    _postalCodeController = TextEditingController(text: _isMobile ? '\u200b' : '');
+    _expirationController =
+        TextEditingController(text: _isMobile ? '\u200b' : '');
+    _securityCodeController =
+        TextEditingController(text: _isMobile ? '\u200b' : '');
+    _postalCodeController =
+        TextEditingController(text: _isMobile ? '\u200b' : '');
 
     // Otherwise, use `RawKeyboard` listener
     if (!_isMobile) {
@@ -234,11 +238,15 @@ class CardTextFieldState extends State<CardTextField> {
     securityCodeFocusNode = FocusNode();
     postalCodeFocusNode = FocusNode();
 
-    _errorTextStyle = const TextStyle(color: Colors.red, fontSize: 14, inherit: true)
-        .merge(widget.errorTextStyle ?? widget.textStyle);
-    _normalTextStyle = const TextStyle(color: Colors.black87, fontSize: 14, inherit: true).merge(widget.textStyle);
-    _hintTextSyle = const TextStyle(color: Colors.black54, fontSize: 14, inherit: true)
-        .merge(widget.hintTextStyle ?? widget.textStyle);
+    _errorTextStyle =
+        const TextStyle(color: Colors.red, fontSize: 14, inherit: true)
+            .merge(widget.errorTextStyle ?? widget.textStyle);
+    _normalTextStyle =
+        const TextStyle(color: Colors.black87, fontSize: 14, inherit: true)
+            .merge(widget.textStyle);
+    _hintTextSyle =
+        const TextStyle(color: Colors.black54, fontSize: 14, inherit: true)
+            .merge(widget.hintTextStyle ?? widget.textStyle);
 
     _normalBoxDecoration = BoxDecoration(
       color: const Color(0xfff6f9fc),
@@ -280,15 +288,31 @@ class CardTextFieldState extends State<CardTextField> {
       _onStepChange,
     );
 
-    isWideFormat =
-        widget.width >= _cardFieldWidth + _expirationFieldWidth + _securityFieldWidth + _postalFieldWidth + 60.0;
+    isWideFormat = widget.width >=
+        _cardFieldWidth +
+            _expirationFieldWidth +
+            _securityFieldWidth +
+            _postalFieldWidth +
+            60.0;
     if (isWideFormat) {
       _internalFieldWidth = widget.width + _postalFieldWidth + 35;
-      _expanderWidthExpanded = widget.width - _cardFieldWidth - _expirationFieldWidth - _securityFieldWidth - 35;
-      _expanderWidthCollapsed =
-          widget.width - _cardFieldWidth - _expirationFieldWidth - _securityFieldWidth - _postalFieldWidth - 70;
+      _expanderWidthExpanded = widget.width -
+          _cardFieldWidth -
+          _expirationFieldWidth -
+          _securityFieldWidth -
+          35;
+      _expanderWidthCollapsed = widget.width -
+          _cardFieldWidth -
+          _expirationFieldWidth -
+          _securityFieldWidth -
+          _postalFieldWidth -
+          70;
     } else {
-      _internalFieldWidth = _cardFieldWidth + _expirationFieldWidth + _securityFieldWidth + _postalFieldWidth + 80;
+      _internalFieldWidth = _cardFieldWidth +
+          _expirationFieldWidth +
+          _securityFieldWidth +
+          _postalFieldWidth +
+          80;
     }
 
     super.initState();
@@ -314,8 +338,10 @@ class CardTextFieldState extends State<CardTextField> {
   @override
   Widget build(BuildContext context) {
     if ((widget.errorText != null || widget.overrideValidState != null) &&
-        Object.hashAll([widget.errorText, widget.overrideValidState]) != _prevErrorOverrideHash) {
-      _prevErrorOverrideHash = Object.hashAll([widget.errorText, widget.overrideValidState]);
+        Object.hashAll([widget.errorText, widget.overrideValidState]) !=
+            _prevErrorOverrideHash) {
+      _prevErrorOverrideHash =
+          Object.hashAll([widget.errorText, widget.overrideValidState]);
       _validateFields();
     }
     return Column(
@@ -332,9 +358,11 @@ class CardTextFieldState extends State<CardTextField> {
             // Enable scrolling on mobile and if its narrow (not all fields visible)
             onHorizontalDragUpdate: (details) {
               const minOffset = 0.0;
-              final maxOffset = _horizontalScrollController.position.maxScrollExtent;
+              final maxOffset =
+                  _horizontalScrollController.position.maxScrollExtent;
               if (!_isMobile || isWideFormat) return;
-              final newOffset = _horizontalScrollController.offset - details.delta.dx;
+              final newOffset =
+                  _horizontalScrollController.offset - details.delta.dx;
 
               if (newOffset < minOffset) {
                 _horizontalScrollController.jumpTo(minOffset);
@@ -345,19 +373,24 @@ class CardTextFieldState extends State<CardTextField> {
               }
             },
             onHorizontalDragEnd: (details) {
-              if (!_isMobile || isWideFormat || details.primaryVelocity == null) return;
+              if (!_isMobile || isWideFormat || details.primaryVelocity == null) {
+                return;
+              }
 
               const dur = Duration(milliseconds: 300);
               const cur = Curves.ease;
 
               // final max = _horizontalScrollController.position.maxScrollExtent;
-              final newOffset = _horizontalScrollController.offset - details.primaryVelocity! * 0.15;
-              _horizontalScrollController.animateTo(newOffset, curve: cur, duration: dur);
+              final newOffset = _horizontalScrollController.offset -
+                  details.primaryVelocity! * 0.15;
+              _horizontalScrollController.animateTo(newOffset,
+                  curve: cur, duration: dur);
             },
             child: Container(
               width: widget.width,
               height: widget.height ?? 60.0,
-              decoration: _showBorderError ? _errorBoxDecoration : _normalBoxDecoration,
+              decoration:
+                  _showBorderError ? _errorBoxDecoration : _normalBoxDecoration,
               child: ClipRect(
                 child: IgnorePointer(
                   child: SingleChildScrollView(
@@ -371,7 +404,8 @@ class CardTextFieldState extends State<CardTextField> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 6.0),
                             child: CardProviderIcon(
                               cardDetails: _cardDetails,
                               size: widget.iconSize,
@@ -398,27 +432,36 @@ class CardTextFieldState extends State<CardTextField> {
                                   return null;
                                 }
                                 _cardDetails.cardNumber = content;
-                                if (_cardDetails.validState == CardDetailsValidState.invalidCard) {
-                                  _setValidationState('Your card number is invalid.');
-                                } else if (_cardDetails.validState == CardDetailsValidState.missingCard) {
-                                  _setValidationState('Your card number is incomplete.');
+                                if (_cardDetails.validState ==
+                                    CardDetailsValidState.invalidCard) {
+                                  _setValidationState(
+                                      'Your card number is invalid.');
+                                } else if (_cardDetails.validState ==
+                                    CardDetailsValidState.missingCard) {
+                                  _setValidationState(
+                                      'Your card number is incomplete.');
                                 }
                                 return null;
                               },
                               onChanged: (str) {
                                 final numbers = str.replaceAll(' ', '');
-                                setState(() => _cardDetails.cardNumber = numbers);
+                                setState(
+                                    () => _cardDetails.cardNumber = numbers);
                                 if (str.length <= _cardDetails.maxINNLength) {
                                   _cardDetails.detectCardProvider();
                                 }
                                 if (numbers.length == 16) {
-                                  _currentCardEntryStepController.add(CardEntryStep.exp);
+                                  _currentCardEntryStepController
+                                      .add(CardEntryStep.exp);
                                 }
                               },
-                              onFieldSubmitted: (_) => _currentCardEntryStepController.add(CardEntryStep.exp),
+                              onFieldSubmitted: (_) =>
+                                  _currentCardEntryStepController
+                                      .add(CardEntryStep.exp),
                               inputFormatters: [
                                 LengthLimitingTextInputFormatter(19),
-                                FilteringTextInputFormatter.allow(RegExp('[0-9 ]')),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9 ]')),
                                 CardNumberInputFormatter(),
                               ],
                               decoration: InputDecoration(
@@ -437,13 +480,14 @@ class CardTextFieldState extends State<CardTextField> {
                               child: AnimatedContainer(
                                 curve: Curves.easeInOut,
                                 duration: const Duration(milliseconds: 400),
-                                constraints: _currentStep == CardEntryStep.number
-                                    ? BoxConstraints.loose(
-                                        Size(_expanderWidthExpanded, 0.0),
-                                      )
-                                    : BoxConstraints.tight(
-                                        Size(_expanderWidthCollapsed, 0.0),
-                                      ),
+                                constraints:
+                                    _currentStep == CardEntryStep.number
+                                        ? BoxConstraints.loose(
+                                            Size(_expanderWidthExpanded, 0.0),
+                                          )
+                                        : BoxConstraints.tight(
+                                            Size(_expanderWidthCollapsed, 0.0),
+                                          ),
                               ),
                             ),
 
@@ -454,7 +498,8 @@ class CardTextFieldState extends State<CardTextField> {
                               alignment: Alignment.centerLeft,
                               children: [
                                 // Must manually add hint label because they wont show on mobile with backspace hack
-                                if (_isMobile && _expirationController.text == '\u200b')
+                                if (_isMobile &&
+                                    _expirationController.text == '\u200b')
                                   Text('MM/YY', style: _hintTextSyle),
                                 TextFormField(
                                   key: const Key('expiration_field'),
@@ -470,24 +515,37 @@ class CardTextFieldState extends State<CardTextField> {
                                       ? _errorTextStyle
                                       : _normalTextStyle,
                                   validator: (content) {
-                                    if (content == null || content.isEmpty || _isMobile && content == '\u200b') {
+                                    if (content == null ||
+                                        content.isEmpty ||
+                                        _isMobile && content == '\u200b') {
                                       return null;
                                     }
 
                                     if (_isMobile) {
-                                      setState(() => _cardDetails.expirationString = content.replaceAll('\u200b', ''));
+                                      setState(() =>
+                                          _cardDetails.expirationString =
+                                              content.replaceAll('\u200b', ''));
                                     } else {
-                                      setState(() => _cardDetails.expirationString = content);
+                                      setState(() => _cardDetails
+                                          .expirationString = content);
                                     }
 
-                                    if (_cardDetails.validState == CardDetailsValidState.dateTooEarly) {
-                                      _setValidationState('Your card\'s expiration date is in the past.');
-                                    } else if (_cardDetails.validState == CardDetailsValidState.dateTooLate) {
-                                      _setValidationState('Your card\'s expiration year is invalid.');
-                                    } else if (_cardDetails.validState == CardDetailsValidState.missingDate) {
-                                      _setValidationState('You must include your card\'s expiration date.');
-                                    } else if (_cardDetails.validState == CardDetailsValidState.invalidMonth) {
-                                      _setValidationState('Your card\'s expiration month is invalid.');
+                                    if (_cardDetails.validState ==
+                                        CardDetailsValidState.dateTooEarly) {
+                                      _setValidationState(
+                                          'Your card\'s expiration date is in the past.');
+                                    } else if (_cardDetails.validState ==
+                                        CardDetailsValidState.dateTooLate) {
+                                      _setValidationState(
+                                          'Your card\'s expiration year is invalid.');
+                                    } else if (_cardDetails.validState ==
+                                        CardDetailsValidState.missingDate) {
+                                      _setValidationState(
+                                          'You must include your card\'s expiration date.');
+                                    } else if (_cardDetails.validState ==
+                                        CardDetailsValidState.invalidMonth) {
+                                      _setValidationState(
+                                          'Your card\'s expiration month is invalid.');
                                     }
                                     return null;
                                   },
@@ -496,18 +554,25 @@ class CardTextFieldState extends State<CardTextField> {
                                       if (str.isEmpty) {
                                         _backspacePressed();
                                       }
-                                      setState(() => _cardDetails.expirationString = str.replaceAll('\u200b', ''));
+                                      setState(() =>
+                                          _cardDetails.expirationString =
+                                              str.replaceAll('\u200b', ''));
                                     } else {
-                                      setState(() => _cardDetails.expirationString = str);
+                                      setState(() =>
+                                          _cardDetails.expirationString = str);
                                     }
                                     if (str.length == 5) {
-                                      _currentCardEntryStepController.add(CardEntryStep.cvc);
+                                      _currentCardEntryStepController
+                                          .add(CardEntryStep.cvc);
                                     }
                                   },
-                                  onFieldSubmitted: (_) => _currentCardEntryStepController.add(CardEntryStep.cvc),
+                                  onFieldSubmitted: (_) =>
+                                      _currentCardEntryStepController
+                                          .add(CardEntryStep.cvc),
                                   inputFormatters: [
                                     LengthLimitingTextInputFormatter(5),
-                                    FilteringTextInputFormatter.allow(RegExp('[0-9/]')),
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp('[0-9/]')),
                                     CardExpirationFormatter(),
                                   ],
                                   decoration: InputDecoration(
@@ -526,7 +591,8 @@ class CardTextFieldState extends State<CardTextField> {
                             child: Stack(
                               alignment: Alignment.centerLeft,
                               children: [
-                                if (_isMobile && _securityCodeController.text == '\u200b')
+                                if (_isMobile &&
+                                    _securityCodeController.text == '\u200b')
                                   Text(
                                     'CVC',
                                     style: _hintTextSyle,
@@ -536,47 +602,67 @@ class CardTextFieldState extends State<CardTextField> {
                                   focusNode: securityCodeFocusNode,
                                   controller: _securityCodeController,
                                   keyboardType: TextInputType.number,
-                                  style:
-                                      _isRedText([CardDetailsValidState.invalidCVC, CardDetailsValidState.missingCVC])
-                                          ? _errorTextStyle
-                                          : _normalTextStyle,
+                                  style: _isRedText([
+                                    CardDetailsValidState.invalidCVC,
+                                    CardDetailsValidState.missingCVC
+                                  ])
+                                      ? _errorTextStyle
+                                      : _normalTextStyle,
                                   validator: (content) {
-                                    if (content == null || content.isEmpty || _isMobile && content == '\u200b') {
+                                    if (content == null ||
+                                        content.isEmpty ||
+                                        _isMobile && content == '\u200b') {
                                       return null;
                                     }
 
                                     if (_isMobile) {
-                                      setState(() => _cardDetails.securityCode = content.replaceAll('\u200b', ''));
+                                      setState(() => _cardDetails.securityCode =
+                                          content.replaceAll('\u200b', ''));
                                     } else {
-                                      setState(() => _cardDetails.securityCode = content);
+                                      setState(() =>
+                                          _cardDetails.securityCode = content);
                                     }
 
-                                    if (_cardDetails.validState == CardDetailsValidState.invalidCVC) {
-                                      _setValidationState('Your card\'s security code is invalid.');
-                                    } else if (_cardDetails.validState == CardDetailsValidState.missingCVC) {
-                                      _setValidationState('Your card\'s security code is incomplete.');
+                                    if (_cardDetails.validState ==
+                                        CardDetailsValidState.invalidCVC) {
+                                      _setValidationState(
+                                          'Your card\'s security code is invalid.');
+                                    } else if (_cardDetails.validState ==
+                                        CardDetailsValidState.missingCVC) {
+                                      _setValidationState(
+                                          'Your card\'s security code is incomplete.');
                                     }
                                     return null;
                                   },
-                                  onFieldSubmitted: (_) => _currentCardEntryStepController.add(CardEntryStep.postal),
+                                  onFieldSubmitted: (_) =>
+                                      _currentCardEntryStepController
+                                          .add(CardEntryStep.postal),
                                   onChanged: (str) {
                                     if (_isMobile) {
                                       if (str.isEmpty) {
                                         _backspacePressed();
                                       }
-                                      setState(() => _cardDetails.expirationString = str.replaceAll('\u200b', ''));
+                                      setState(() =>
+                                          _cardDetails.expirationString =
+                                              str.replaceAll('\u200b', ''));
                                     } else {
-                                      setState(() => _cardDetails.expirationString = str);
+                                      setState(() =>
+                                          _cardDetails.expirationString = str);
                                     }
 
-                                    if (str.length == _cardDetails.provider?.cvcLength) {
-                                      _currentCardEntryStepController.add(CardEntryStep.postal);
+                                    if (str.length ==
+                                        _cardDetails.provider?.cvcLength) {
+                                      _currentCardEntryStepController
+                                          .add(CardEntryStep.postal);
                                     }
                                   },
                                   inputFormatters: [
                                     LengthLimitingTextInputFormatter(
-                                        _cardDetails.provider == null ? 4 : _cardDetails.provider!.cvcLength),
-                                    FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+                                        _cardDetails.provider == null
+                                            ? 4
+                                            : _cardDetails.provider!.cvcLength),
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp('[0-9]')),
                                   ],
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.zero,
@@ -594,7 +680,8 @@ class CardTextFieldState extends State<CardTextField> {
                             child: Stack(
                               alignment: Alignment.centerLeft,
                               children: [
-                                if (_isMobile && _postalCodeController.text == '\u200b')
+                                if (_isMobile &&
+                                    _postalCodeController.text == '\u200b')
                                   Text(
                                     'Postal Code',
                                     style: _hintTextSyle,
@@ -604,25 +691,35 @@ class CardTextFieldState extends State<CardTextField> {
                                   focusNode: postalCodeFocusNode,
                                   controller: _postalCodeController,
                                   keyboardType: TextInputType.number,
-                                  style:
-                                      _isRedText([CardDetailsValidState.invalidZip, CardDetailsValidState.missingZip])
-                                          ? _errorTextStyle
-                                          : _normalTextStyle,
+                                  style: _isRedText([
+                                    CardDetailsValidState.invalidZip,
+                                    CardDetailsValidState.missingZip
+                                  ])
+                                      ? _errorTextStyle
+                                      : _normalTextStyle,
                                   validator: (content) {
-                                    if (content == null || content.isEmpty || _isMobile && content == '\u200b') {
+                                    if (content == null ||
+                                        content.isEmpty ||
+                                        _isMobile && content == '\u200b') {
                                       return null;
                                     }
 
                                     if (_isMobile) {
-                                      setState(() => _cardDetails.postalCode = content.replaceAll('\u200b', ''));
+                                      setState(() => _cardDetails.postalCode =
+                                          content.replaceAll('\u200b', ''));
                                     } else {
-                                      setState(() => _cardDetails.postalCode = content);
+                                      setState(() =>
+                                          _cardDetails.postalCode = content);
                                     }
 
-                                    if (_cardDetails.validState == CardDetailsValidState.invalidZip) {
-                                      _setValidationState('The postal code you entered is not correct.');
-                                    } else if (_cardDetails.validState == CardDetailsValidState.missingZip) {
-                                      _setValidationState('You must enter your card\'s postal code.');
+                                    if (_cardDetails.validState ==
+                                        CardDetailsValidState.invalidZip) {
+                                      _setValidationState(
+                                          'The postal code you entered is not correct.');
+                                    } else if (_cardDetails.validState ==
+                                        CardDetailsValidState.missingZip) {
+                                      _setValidationState(
+                                          'You must enter your card\'s postal code.');
                                     }
                                     return null;
                                   },
@@ -631,9 +728,11 @@ class CardTextFieldState extends State<CardTextField> {
                                       if (str.isEmpty) {
                                         _backspacePressed();
                                       }
-                                      setState(() => _cardDetails.postalCode = str.replaceAll('\u200b', ''));
+                                      setState(() => _cardDetails.postalCode =
+                                          str.replaceAll('\u200b', ''));
                                     } else {
-                                      setState(() => _cardDetails.postalCode = str);
+                                      setState(
+                                          () => _cardDetails.postalCode = str);
                                     }
                                   },
                                   textInputAction: TextInputAction.done,
@@ -653,8 +752,12 @@ class CardTextFieldState extends State<CardTextField> {
                           ),
                           AnimatedOpacity(
                             duration: const Duration(milliseconds: 300),
-                            opacity: _loading && widget.showInternalLoadingWidget ? 1.0 : 0.0,
-                            child: widget.loadingWidget ?? const CircularProgressIndicator(),
+                            opacity:
+                                _loading && widget.showInternalLoadingWidget
+                                    ? 1.0
+                                    : 0.0,
+                            child: widget.loadingWidget ??
+                                const CircularProgressIndicator(),
                           ),
                         ],
                       ),
@@ -762,14 +865,20 @@ class CardTextFieldState extends State<CardTextField> {
         _horizontalScrollController.animateTo(0.0, duration: dur, curve: cur);
         break;
       case CardEntryStep.exp:
-        _horizontalScrollController.animateTo(_cardFieldWidth / 2, duration: dur, curve: cur);
+        _horizontalScrollController.animateTo(_cardFieldWidth / 2,
+            duration: dur, curve: cur);
         break;
       case CardEntryStep.cvc:
-        _horizontalScrollController.animateTo(_cardFieldWidth / 2 + _expirationFieldWidth, duration: dur, curve: cur);
+        _horizontalScrollController.animateTo(
+            _cardFieldWidth / 2 + _expirationFieldWidth,
+            duration: dur,
+            curve: cur);
         break;
       case CardEntryStep.postal:
-        _horizontalScrollController.animateTo(_cardFieldWidth / 2 + _expirationFieldWidth + _securityFieldWidth,
-            duration: dur, curve: cur);
+        _horizontalScrollController.animateTo(
+            _cardFieldWidth / 2 + _expirationFieldWidth + _securityFieldWidth,
+            duration: dur,
+            curve: cur);
         break;
     }
   }
@@ -842,11 +951,11 @@ class CardTextFieldState extends State<CardTextField> {
       case CardEntryStep.number:
         break;
       case CardEntryStep.exp:
-        if (_expirationController.text.isNotEmpty) break;
+        if (_expirationController.text.isNotEmpty) return;
       case CardEntryStep.cvc:
-        if (_securityCodeController.text.isNotEmpty) break;
+        if (_securityCodeController.text.isNotEmpty) return;
       case CardEntryStep.postal:
-        if (_postalCodeController.text.isNotEmpty) break;
+        if (_postalCodeController.text.isNotEmpty) return;
     }
     _transitionStepFocus();
   }
@@ -893,7 +1002,8 @@ class CardTextFieldState extends State<CardTextField> {
 /// to make the card number display cleanly.
 class CardNumberInputFormatter implements TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     String cardNum = newValue.text;
     if (cardNum.length <= 4) return newValue;
 
@@ -908,7 +1018,9 @@ class CardNumberInputFormatter implements TextInputFormatter {
       }
     }
 
-    return newValue.copyWith(text: buffer.toString(), selection: TextSelection.collapsed(offset: buffer.length));
+    return newValue.copyWith(
+        text: buffer.toString(),
+        selection: TextSelection.collapsed(offset: buffer.length));
   }
 }
 
@@ -916,7 +1028,8 @@ class CardNumberInputFormatter implements TextInputFormatter {
 /// the month and the year for the expiration date.
 class CardExpirationFormatter implements TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     String cardExp = newValue.text;
     if (cardExp.length == 1) {
       if (cardExp[0] == '0' || cardExp[0] == '1') {
@@ -937,6 +1050,8 @@ class CardExpirationFormatter implements TextInputFormatter {
         buffer.write('/');
       }
     }
-    return newValue.copyWith(text: buffer.toString(), selection: TextSelection.collapsed(offset: buffer.length));
+    return newValue.copyWith(
+        text: buffer.toString(),
+        selection: TextSelection.collapsed(offset: buffer.length));
   }
 }
