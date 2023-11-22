@@ -1,6 +1,6 @@
 name: stripe_native_card_field
 description: A native flutter implementation of the elegant Stripe Card Field.
-version: 0.0.4
+version: 0.0.5
 repository: https://git.fosscat.com/n8r/stripe_native_card_field
 
 environment:
