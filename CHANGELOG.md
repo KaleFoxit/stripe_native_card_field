@@ -1,3 +1,8 @@
+## 0.0.5
+
+- Fix Web, invalid call to `Platform.isAndroid`
+- Analysis issues fixed for pub points
+
 ## 0.0.4
 
 - Fix for focus and soft keyboard on mobile devices
