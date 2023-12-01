@@ -23,7 +23,7 @@ Got to use emojis and taglines for attention grabbing and algorithm hacking:
 - Native Implementation: compiles and loads like the rest of your app, unlike embeded html
 - Automatic validation: no `inputFormatters` or `RegExp` needed on your side
 
-The card data can either be retrieved with the `onCardDetailsComplete` callback, or
+The card data can either be retrieved with the `onValidCardDetails` callback, or
 you can have the element automatically create a Stripe card token when the fields
 are filled out, and return the token with the `onTokenReceived` callback.
 
@@ -62,12 +62,13 @@ Include the package in a file:
 import 'package:stripe_native_card_field/stripe_native_card_field.dart';
 ```
 
-### For just Card Data
+### For Raw Card Data
 
+Provide a callback for the `CardTextField` to return you the data when its complete.
 ```dart
 CardTextField(
   width: 500,
-  onCardDetailsComplete: (details) {
+  onValidCardDetails: (details) {
     // Save the card details to use with your call to Stripe, or whoever
     setState(() => _cardDetails = details);
   },
@@ -76,17 +77,27 @@ CardTextField(
 
 ### For Stripe Token
 
+Simply provide a function for the `onStripeResponse` callback!
+
 ```dart
 CardTextField(
   width: 500,
   stripePublishableKey: 'pk_test_abc123', // Your stripe key here
-  onTokenReceived: (token) {
+  onStripeResponse: (Map<String, dynamic> data) {
     // Save the stripe token to send to your backend
-    setState(() => _token = token);
+    setState(() => _tokenData = data);
   },
 );
 ```
 
+If you want more fine-grained control of when the stripe call is made, you
+can create a `GlobalKey` and access the `CardTextFieldState`, calling the
+`getStripeResponse()` function yourself. See the provided [example](https://pub.dev/packages/stripe_native_card_field/example)
+for details. If you choose this route, do not provide an `onStripeResponse` callback, or you will end up
+making two calls to stripe!
+
 # Additional information
 
 Repository located [here](https://git.fosscat.com/n8r/stripe_native_card_field)
+
+Please email me at n8r@fosscat.com for any issues or PRs.

@@ -18,7 +18,7 @@ void main() {
       CardDetails? details;
       final cardField = CardTextField(
         width: width,
-        onCardDetailsComplete: (cd) => details = cd,
+        onValidCardDetails: (cd) => details = cd,
       );
       await tester.pumpWidget(baseCardFieldWidget(cardField));
 
@@ -110,7 +110,7 @@ void main() {
 
     final cardField = CardTextField(
       width: width,
-      onCardDetailsComplete: (cd) => details = cd,
+      onValidCardDetails: (cd) => details = cd,
     );
     await tester.pumpWidget(baseCardFieldWidget(cardField));
 

@@ -61,14 +61,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             CardTextField(
               width: 300,
-              onCardDetailsComplete: (details) {
+              onValidCardDetails: (details) {
                 if (kDebugMode) {
                   print(details);
                 }
               },
               textStyle:
                   const TextStyle(fontFamily: 'Lato', color: Colors.tealAccent),
-              hintTextStyle: const TextStyle(fontFamily: 'Lato', color: Colors.teal),
+              hintTextStyle:
+                  const TextStyle(fontFamily: 'Lato', color: Colors.teal),
               errorTextStyle: const TextStyle(color: Colors.purpleAccent),
               boxDecoration: BoxDecoration(
                 color: Colors.black54,

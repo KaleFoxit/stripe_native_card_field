@@ -1,3 +1,13 @@
+## 0.0.6
+
+- Improved assertion and error messaging when missing stripe implements
+- Added better doc comments
+- Fixed `CardTextField.delayToShowLoading`, now it uses it
+- Fixed bad assertion logic when providing stripe keys
+- Added ability to make Stripe call with `GlobalKey`
+- Refactored method `onTokenReceived` to `onStripeResponse` to be clearer
+- Refactored method `onCardDetailsComplete` to `onValidCardDetails` to be clearer
+
 ## 0.0.5
 
 - Fix Web, invalid call to `Platform.isAndroid`
