@@ -1,3 +1,7 @@
+## 0.0.7
+
+- Changed pubspec versioning to allow lower SDK constraints (>=2.12.0)
+
 ## 0.0.6
 
 - Improved assertion and error messaging when missing stripe implements
