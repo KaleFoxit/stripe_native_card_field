@@ -498,7 +498,7 @@ class CardTextFieldState extends State<CardTextField> {
                                       if (_isMobile &&
                                           _expirationController.text ==
                                               '\u200b')
-                                        Text('MM/YYY', style: _hintTextSyle),
+                                        Text('MM/YY', style: _hintTextSyle),
                                       TextFormField(
                                         key: const Key('expiration_field'),
                                         focusNode: expirationFocusNode,

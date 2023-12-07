@@ -1,3 +1,7 @@
+## 0.0.10
+
+- One little 'Y' I missed
+
 ## 0.0.9
 
 - Drastically improved usability and performance with flutter web and canvaskit renderer, especially on mobile
