@@ -1073,7 +1073,7 @@ class CardTextFieldState extends State<CardTextField> {
         break;
     }
 
-    /// Make the selection adjustment after first frame builds
+    // Make the selection adjustment only on web, other platforms dont select on focus change
     if (kIsWeb)
       WidgetsBinding.instance.addPostFrameCallback((_) => _adjustSelection());
 
@@ -1095,27 +1095,23 @@ class CardTextFieldState extends State<CardTextField> {
     switch (_currentStep) {
       case CardEntryStep.number:
         final len = _cardNumberController.text.length;
-        final offset = len == 0 ? 1 : len;
         _cardNumberController.value = _cardNumberController.value.copyWith(
-            selection: TextSelection(baseOffset: offset, extentOffset: offset));
+            selection: TextSelection(baseOffset: len, extentOffset: len));
         break;
       case CardEntryStep.exp:
         final len = _expirationController.text.length;
-        final offset = len == 0 ? 0 : len;
         _expirationController.value = _expirationController.value.copyWith(
-            selection: TextSelection(baseOffset: offset, extentOffset: offset));
+            selection: TextSelection(baseOffset: len, extentOffset: len));
         break;
       case CardEntryStep.cvc:
         final len = _securityCodeController.text.length;
-        final offset = len == 0 ? 0 : len;
         _securityCodeController.value = _securityCodeController.value.copyWith(
-            selection: TextSelection(baseOffset: offset, extentOffset: offset));
+            selection: TextSelection(baseOffset: len, extentOffset: len));
         break;
       case CardEntryStep.postal:
         final len = _postalCodeController.text.length;
-        final offset = len == 0 ? 0 : len;
         _postalCodeController.value = _postalCodeController.value.copyWith(
-            selection: TextSelection(baseOffset: offset, extentOffset: offset));
+            selection: TextSelection(baseOffset: len, extentOffset: len));
         break;
     }
   }

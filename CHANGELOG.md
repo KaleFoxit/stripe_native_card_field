@@ -1,6 +1,7 @@
 ## 0.0.10
 
 - One little 'Y' I missed
+- Fixed out of range error with `_adjustSelection`
 
 ## 0.0.9
 
