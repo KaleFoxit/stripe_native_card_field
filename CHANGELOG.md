@@ -1,3 +1,14 @@
+## 0.0.9
+
+- Drastically improved usability and performance with flutter web and canvaskit renderer, especially on mobile
+- Using streams to more accurately call `widget.onValidCardDetails` when the card details are valid and completed
+- Added `cursorColor` customization
+- Reworked widget life cycle so that hot reloads work as expected (resizing, focus, etc.).
+
+## 0.0.8
+
+- Updated dart sdk constraints again... oops (>=3.0.0)
+
 ## 0.0.7
 
 - Changed pubspec versioning to allow lower SDK constraints (>=2.12.0)

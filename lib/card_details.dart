@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 /// Class encapsulating the card's data
@@ -18,11 +20,7 @@ class CardDetails {
   /// Sets every field to null, a default
   /// `CardDetails` when nothing has been entered.
   factory CardDetails.blank() {
-    return CardDetails(
-        cardNumber: null,
-        securityCode: null,
-        expirationString: null,
-        postalCode: null);
+    return CardDetails(cardNumber: null, securityCode: null, expirationString: null, postalCode: null);
   }
 
   /// Returns the CardNumber as a `String` with the spaces removed.
@@ -39,6 +37,7 @@ class CardDetails {
   CardDetailsValidState _validState = CardDetailsValidState.blank;
   int _lastCheckHash = 0;
   CardProvider? provider;
+  StreamController<CardDetails> onCompleteController = StreamController();
 
   set overrideValidState(CardDetailsValidState state) => _validState = state;
 
@@ -51,19 +50,25 @@ class CardDetails {
   String get expMonth => isComplete ? expirationString!.split('/').first : '';
   String get expYear => isComplete ? expirationString!.split('/').last : '';
 
-  // TODO rename to be more clear
   /// Returns true if `_cardNumber` is null, or
   /// if the _cardNumber matches the detected `provider`'s
   /// card lenght, defaulting to 16.
-  bool get cardNumberFilled => _cardNumber == null
-      ? false
-      : (provider?.cardLength ?? 16) == _cardNumber!.replaceAll(' ', '').length;
+  bool get cardNumberFilled =>
+      _cardNumber == null ? false : (provider?.cardLength ?? 16) == _cardNumber!.replaceAll(' ', '').length;
 
   /// Returns true if all details are complete and valid
   /// otherwise, return false.
   bool get isComplete {
     checkIsValid();
     return _complete;
+  }
+
+  /// Detects if the card is complete, then broadcasts
+  /// card details to `onCompleteController`
+  void broadcastStatus() {
+    if (isComplete) {
+      onCompleteController.add(this);
+    }
   }
 
   /// The maximum length of the INN (identifier)
@@ -82,12 +87,9 @@ class CardDetails {
         return;
       }
 
+      _complete = false;
       _lastCheckHash = currentHash;
-      if (_cardNumber == null &&
-          expirationString == null &&
-          securityCode == null &&
-          postalCode == null) {
-        _complete = false;
+      if (_cardNumber == null && expirationString == null && securityCode == null && postalCode == null) {
         _validState = CardDetailsValidState.blank;
         return;
       }
@@ -99,63 +101,50 @@ class CardDetails {
           )
           .toList();
       if (!_luhnAlgorithmCheck(nums)) {
-        _complete = false;
         _validState = CardDetailsValidState.invalidCard;
         return;
       }
       if (_cardNumber == null || !cardNumberFilled) {
-        _complete = false;
         _validState = CardDetailsValidState.missingCard;
         return;
       }
       if (expirationString == null) {
-        _complete = false;
         _validState = CardDetailsValidState.missingDate;
         return;
       }
       final expSplits = expirationString!.split('/');
       if (expSplits.length != 2 || expSplits.last == '') {
-        _complete = false;
         _validState = CardDetailsValidState.missingDate;
         return;
       }
-      final month = int.parse(
-          expSplits.first[0] == '0' ? expSplits.first[1] : expSplits.first);
+      final month = int.parse(expSplits.first[0] == '0' ? expSplits.first[1] : expSplits.first);
       if (month < 1 || month > 12) {
-        _complete = false;
         _validState = CardDetailsValidState.invalidMonth;
         return;
       }
       final year = 2000 + int.parse(expSplits.last);
       final date = DateTime(year, month);
       if (date.isBefore(DateTime.now())) {
-        _complete = false;
         _validState = CardDetailsValidState.dateTooEarly;
         return;
-      } else if (date
-          .isAfter(DateTime.now().add(const Duration(days: 365 * 50)))) {
-        _complete = false;
+      } else if (date.isAfter(DateTime.now().add(const Duration(days: 365 * 50)))) {
         _validState = CardDetailsValidState.dateTooLate;
         return;
       }
       expirationDate = date;
       if (securityCode == null) {
-        _complete = false;
         _validState = CardDetailsValidState.missingCVC;
         return;
       }
       if (provider != null && securityCode!.length != provider!.cvcLength) {
-        _complete = false;
         _validState = CardDetailsValidState.invalidCVC;
         return;
       }
       if (postalCode == null) {
-        _complete = false;
         _validState = CardDetailsValidState.missingZip;
         return;
       }
       if (!RegExp(r'^\d{5}(-\d{4})?$').hasMatch(postalCode!)) {
-        _complete = false;
         _validState = CardDetailsValidState.invalidZip;
         return;
       }
@@ -292,11 +281,7 @@ class CardProvider {
   int cvcLength;
 
   CardProvider(
-      {required this.id,
-      required this.cardLength,
-      required this.cvcLength,
-      this.innValidNums,
-      this.innValidRanges}) {
+      {required this.id, required this.cardLength, required this.cvcLength, this.innValidNums, this.innValidRanges}) {
     // Must provide one or the other
     assert(innValidNums != null || innValidRanges != null);
     // Do not provide empty list of valid nums
