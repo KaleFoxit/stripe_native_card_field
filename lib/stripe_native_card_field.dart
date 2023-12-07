@@ -914,9 +914,10 @@ class CardTextFieldState extends State<CardTextField> {
   // Makes an http call to stripe API with provided card credentials and returns the result
   Future<Map<String, dynamic>?> getStripeResponse() async {
     if (widget.stripePublishableKey == null) {
-      if (kDebugMode)
+      if (kDebugMode) {
         print(
             '***ERROR tried calling `getStripeResponse()` but no stripe key provided');
+      }
       return null;
     }
 
@@ -1074,8 +1075,9 @@ class CardTextFieldState extends State<CardTextField> {
     }
 
     // Make the selection adjustment only on web, other platforms dont select on focus change
-    if (kIsWeb)
+    if (kIsWeb) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _adjustSelection());
+    }
 
     if (!isWideFormat) {
       _scrollRow(step);
