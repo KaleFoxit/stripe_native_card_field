@@ -75,7 +75,8 @@ class CardTextField extends StatefulWidget {
         const msg = 'Invalid stripe key, doesn\'t start with "pk_"';
         if (kDebugMode) assert(false, msg);
         if (kReleaseMode || kProfileMode) {
-          throw CardTextFieldError(CardTextFieldErrorType.stripeImplementation, details: msg);
+          throw CardTextFieldError(CardTextFieldErrorType.stripeImplementation,
+              details: msg);
         }
       }
     }
@@ -245,9 +246,12 @@ class CardTextFieldState extends State<CardTextField> {
 
     // No way to get backspace events on soft keyboards, so add invisible character to detect delete
     _cardNumberController = TextEditingController();
-    _expirationController = TextEditingController(text: _isMobile ? '\u200b' : '');
-    _securityCodeController = TextEditingController(text: _isMobile ? '\u200b' : '');
-    _postalCodeController = TextEditingController(text: _isMobile ? '\u200b' : '');
+    _expirationController =
+        TextEditingController(text: _isMobile ? '\u200b' : '');
+    _securityCodeController =
+        TextEditingController(text: _isMobile ? '\u200b' : '');
+    _postalCodeController =
+        TextEditingController(text: _isMobile ? '\u200b' : '');
 
     _controllers.addAll([
       _cardNumberController,
@@ -273,7 +277,9 @@ class CardTextFieldState extends State<CardTextField> {
 
     // Add listeners to know when card details are completed
     _cardDetails.onCompleteController.stream.listen((card) async {
-      if (widget.stripePublishableKey != null && widget.onStripeResponse != null && widget.autoFetchStripektoken) {
+      if (widget.stripePublishableKey != null &&
+          widget.onStripeResponse != null &&
+          widget.autoFetchStripektoken) {
         final res = await getStripeResponse();
         widget.onStripeResponse!(res);
       }
@@ -322,9 +328,11 @@ class CardTextFieldState extends State<CardTextField> {
             // Enable scrolling on mobile and if its narrow (not all fields visible)
             onHorizontalDragUpdate: (details) {
               const minOffset = 0.0;
-              final maxOffset = _horizontalScrollController.position.maxScrollExtent;
+              final maxOffset =
+                  _horizontalScrollController.position.maxScrollExtent;
               if (!_isMobile || isWideFormat) return;
-              final newOffset = _horizontalScrollController.offset - details.delta.dx;
+              final newOffset =
+                  _horizontalScrollController.offset - details.delta.dx;
 
               if (newOffset < minOffset) {
                 _horizontalScrollController.jumpTo(minOffset);
@@ -335,7 +343,9 @@ class CardTextFieldState extends State<CardTextField> {
               }
             },
             onHorizontalDragEnd: (details) {
-              if (!_isMobile || isWideFormat || details.primaryVelocity == null) {
+              if (!_isMobile ||
+                  isWideFormat ||
+                  details.primaryVelocity == null) {
                 return;
               }
 
@@ -343,13 +353,16 @@ class CardTextFieldState extends State<CardTextField> {
               const cur = Curves.ease;
 
               // final max = _horizontalScrollController.position.maxScrollExtent;
-              final newOffset = _horizontalScrollController.offset - details.primaryVelocity! * 0.15;
-              _horizontalScrollController.animateTo(newOffset, curve: cur, duration: dur);
+              final newOffset = _horizontalScrollController.offset -
+                  details.primaryVelocity! * 0.15;
+              _horizontalScrollController.animateTo(newOffset,
+                  curve: cur, duration: dur);
             },
             child: Container(
               width: widget.width,
               height: widget.height ?? 60.0,
-              decoration: _showBorderError ? _errorBoxDecoration : _normalBoxDecoration,
+              decoration:
+                  _showBorderError ? _errorBoxDecoration : _normalBoxDecoration,
               child: ClipRect(
                 child: IgnorePointer(
                   child: SingleChildScrollView(
@@ -360,23 +373,31 @@ class CardTextFieldState extends State<CardTextField> {
                       height: widget.height ?? 60.0,
                       child: Column(
                         children: [
-                          if (widget.loadingWidgetLocation == LoadingLocation.above)
+                          if (widget.loadingWidgetLocation ==
+                              LoadingLocation.above)
                             AnimatedOpacity(
                               duration: const Duration(milliseconds: 300),
-                              opacity: _loading && widget.showInternalLoadingWidget ? 1.0 : 0.0,
-                              child: widget.loadingWidget ?? const LinearProgressIndicator(),
+                              opacity:
+                                  _loading && widget.showInternalLoadingWidget
+                                      ? 1.0
+                                      : 0.0,
+                              child: widget.loadingWidget ??
+                                  const LinearProgressIndicator(),
                             ),
                           Padding(
                             padding: switch (widget.loadingWidgetLocation) {
-                              LoadingLocation.above => const EdgeInsets.only(top: 0, bottom: 4.0),
-                              LoadingLocation.below => const EdgeInsets.only(top: 4.0, bottom: 0),
+                              LoadingLocation.above =>
+                                const EdgeInsets.only(top: 0, bottom: 4.0),
+                              LoadingLocation.below =>
+                                const EdgeInsets.only(top: 4.0, bottom: 0),
                             },
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6.0),
                                   child: CardProviderIcon(
                                     cardDetails: _cardDetails,
                                     size: widget.iconSize,
@@ -404,27 +425,37 @@ class CardTextFieldState extends State<CardTextField> {
                                       }
                                       // setState(() => _cardDetails.cardNumber = content);
 
-                                      if (_cardDetails.validState == CardDetailsValidState.invalidCard) {
-                                        _setValidationState('Your card number is invalid.');
-                                      } else if (_cardDetails.validState == CardDetailsValidState.missingCard) {
-                                        _setValidationState('Your card number is incomplete.');
+                                      if (_cardDetails.validState ==
+                                          CardDetailsValidState.invalidCard) {
+                                        _setValidationState(
+                                            'Your card number is invalid.');
+                                      } else if (_cardDetails.validState ==
+                                          CardDetailsValidState.missingCard) {
+                                        _setValidationState(
+                                            'Your card number is incomplete.');
                                       }
                                       return null;
                                     },
                                     onChanged: (str) {
-                                      _onTextFieldChanged(str, CardEntryStep.number);
+                                      _onTextFieldChanged(
+                                          str, CardEntryStep.number);
                                       final numbers = str.replaceAll(' ', '');
-                                      if (str.length <= _cardDetails.maxINNLength) {
+                                      if (str.length <=
+                                          _cardDetails.maxINNLength) {
                                         _cardDetails.detectCardProvider();
                                       }
                                       if (numbers.length == 16) {
-                                        _currentCardEntryStepController.add(CardEntryStep.exp);
+                                        _currentCardEntryStepController
+                                            .add(CardEntryStep.exp);
                                       }
                                     },
-                                    onFieldSubmitted: (_) => _currentCardEntryStepController.add(CardEntryStep.exp),
+                                    onFieldSubmitted: (_) =>
+                                        _currentCardEntryStepController
+                                            .add(CardEntryStep.exp),
                                     inputFormatters: [
                                       LengthLimitingTextInputFormatter(19),
-                                      FilteringTextInputFormatter.allow(RegExp('[0-9 ]')),
+                                      FilteringTextInputFormatter.allow(
+                                          RegExp('[0-9 ]')),
                                       CardNumberInputFormatter(),
                                     ],
                                     cursorColor: _cursorColor,
@@ -443,13 +474,16 @@ class CardTextFieldState extends State<CardTextField> {
                                     // fit: _currentStep == CardEntryStep.number ? FlexFit.loose : FlexFit.tight,
                                     child: AnimatedContainer(
                                       curve: Curves.easeInOut,
-                                      duration: const Duration(milliseconds: 400),
-                                      constraints: _currentStep == CardEntryStep.number
+                                      duration:
+                                          const Duration(milliseconds: 400),
+                                      constraints: _currentStep ==
+                                              CardEntryStep.number
                                           ? BoxConstraints.loose(
                                               Size(_expanderWidthExpanded, 0.0),
                                             )
                                           : BoxConstraints.tight(
-                                              Size(_expanderWidthCollapsed, 0.0),
+                                              Size(
+                                                  _expanderWidthCollapsed, 0.0),
                                             ),
                                     ),
                                   ),
@@ -461,7 +495,9 @@ class CardTextFieldState extends State<CardTextField> {
                                     alignment: Alignment.centerLeft,
                                     children: [
                                       // Must manually add hint label because they wont show on mobile with backspace hack
-                                      if (_isMobile && _expirationController.text == '\u200b')
+                                      if (_isMobile &&
+                                          _expirationController.text ==
+                                              '\u200b')
                                         Text('MM/YYY', style: _hintTextSyle),
                                       TextFormField(
                                         key: const Key('expiration_field'),
@@ -477,7 +513,10 @@ class CardTextFieldState extends State<CardTextField> {
                                             ? _errorTextStyle
                                             : _normalTextStyle,
                                         validator: (content) {
-                                          if (content == null || content.isEmpty || _isMobile && content == '\u200b') {
+                                          if (content == null ||
+                                              content.isEmpty ||
+                                              _isMobile &&
+                                                  content == '\u200b') {
                                             return null;
                                           }
 
@@ -488,27 +527,44 @@ class CardTextFieldState extends State<CardTextField> {
                                           //   setState(() => _cardDetails.expirationString = content);
                                           // }
 
-                                          if (_cardDetails.validState == CardDetailsValidState.dateTooEarly) {
-                                            _setValidationState('Your card\'s expiration date is in the past.');
-                                          } else if (_cardDetails.validState == CardDetailsValidState.dateTooLate) {
-                                            _setValidationState('Your card\'s expiration year is invalid.');
-                                          } else if (_cardDetails.validState == CardDetailsValidState.missingDate) {
-                                            _setValidationState('You must include your card\'s expiration date.');
-                                          } else if (_cardDetails.validState == CardDetailsValidState.invalidMonth) {
-                                            _setValidationState('Your card\'s expiration month is invalid.');
+                                          if (_cardDetails.validState ==
+                                              CardDetailsValidState
+                                                  .dateTooEarly) {
+                                            _setValidationState(
+                                                'Your card\'s expiration date is in the past.');
+                                          } else if (_cardDetails.validState ==
+                                              CardDetailsValidState
+                                                  .dateTooLate) {
+                                            _setValidationState(
+                                                'Your card\'s expiration year is invalid.');
+                                          } else if (_cardDetails.validState ==
+                                              CardDetailsValidState
+                                                  .missingDate) {
+                                            _setValidationState(
+                                                'You must include your card\'s expiration date.');
+                                          } else if (_cardDetails.validState ==
+                                              CardDetailsValidState
+                                                  .invalidMonth) {
+                                            _setValidationState(
+                                                'Your card\'s expiration month is invalid.');
                                           }
                                           return null;
                                         },
                                         onChanged: (str) {
-                                          _onTextFieldChanged(str, CardEntryStep.exp);
+                                          _onTextFieldChanged(
+                                              str, CardEntryStep.exp);
                                           if (str.length == 5) {
-                                            _currentCardEntryStepController.add(CardEntryStep.cvc);
+                                            _currentCardEntryStepController
+                                                .add(CardEntryStep.cvc);
                                           }
                                         },
-                                        onFieldSubmitted: (_) => _currentCardEntryStepController.add(CardEntryStep.cvc),
+                                        onFieldSubmitted: (_) =>
+                                            _currentCardEntryStepController
+                                                .add(CardEntryStep.cvc),
                                         inputFormatters: [
                                           LengthLimitingTextInputFormatter(5),
-                                          FilteringTextInputFormatter.allow(RegExp('[0-9/]')),
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp('[0-9/]')),
                                           CardExpirationFormatter(),
                                         ],
                                         cursorColor: _cursorColor,
@@ -528,7 +584,9 @@ class CardTextFieldState extends State<CardTextField> {
                                   child: Stack(
                                     alignment: Alignment.centerLeft,
                                     children: [
-                                      if (_isMobile && _securityCodeController.text == '\u200b')
+                                      if (_isMobile &&
+                                          _securityCodeController.text ==
+                                              '\u200b')
                                         Text(
                                           'CVC',
                                           style: _hintTextSyle,
@@ -538,12 +596,17 @@ class CardTextFieldState extends State<CardTextField> {
                                         focusNode: securityCodeFocusNode,
                                         controller: _securityCodeController,
                                         keyboardType: TextInputType.number,
-                                        style: _isRedText(
-                                                [CardDetailsValidState.invalidCVC, CardDetailsValidState.missingCVC])
+                                        style: _isRedText([
+                                          CardDetailsValidState.invalidCVC,
+                                          CardDetailsValidState.missingCVC
+                                        ])
                                             ? _errorTextStyle
                                             : _normalTextStyle,
                                         validator: (content) {
-                                          if (content == null || content.isEmpty || _isMobile && content == '\u200b') {
+                                          if (content == null ||
+                                              content.isEmpty ||
+                                              _isMobile &&
+                                                  content == '\u200b') {
                                             return null;
                                           }
 
@@ -554,26 +617,41 @@ class CardTextFieldState extends State<CardTextField> {
                                           //   setState(() => _cardDetails.securityCode = content);
                                           // }
 
-                                          if (_cardDetails.validState == CardDetailsValidState.invalidCVC) {
-                                            _setValidationState('Your card\'s security code is invalid.');
-                                          } else if (_cardDetails.validState == CardDetailsValidState.missingCVC) {
-                                            _setValidationState('Your card\'s security code is incomplete.');
+                                          if (_cardDetails.validState ==
+                                              CardDetailsValidState
+                                                  .invalidCVC) {
+                                            _setValidationState(
+                                                'Your card\'s security code is invalid.');
+                                          } else if (_cardDetails.validState ==
+                                              CardDetailsValidState
+                                                  .missingCVC) {
+                                            _setValidationState(
+                                                'Your card\'s security code is incomplete.');
                                           }
                                           return null;
                                         },
                                         onFieldSubmitted: (_) =>
-                                            _currentCardEntryStepController.add(CardEntryStep.postal),
+                                            _currentCardEntryStepController
+                                                .add(CardEntryStep.postal),
                                         onChanged: (str) {
-                                          _onTextFieldChanged(str, CardEntryStep.cvc);
+                                          _onTextFieldChanged(
+                                              str, CardEntryStep.cvc);
 
-                                          if (str.length == _cardDetails.provider?.cvcLength) {
-                                            _currentCardEntryStepController.add(CardEntryStep.postal);
+                                          if (str.length ==
+                                              _cardDetails
+                                                  .provider?.cvcLength) {
+                                            _currentCardEntryStepController
+                                                .add(CardEntryStep.postal);
                                           }
                                         },
                                         inputFormatters: [
                                           LengthLimitingTextInputFormatter(
-                                              _cardDetails.provider == null ? 4 : _cardDetails.provider!.cvcLength),
-                                          FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+                                              _cardDetails.provider == null
+                                                  ? 4
+                                                  : _cardDetails
+                                                      .provider!.cvcLength),
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp('[0-9]')),
                                         ],
                                         cursorColor: _cursorColor,
                                         decoration: InputDecoration(
@@ -592,7 +670,9 @@ class CardTextFieldState extends State<CardTextField> {
                                   child: Stack(
                                     alignment: Alignment.centerLeft,
                                     children: [
-                                      if (_isMobile && _postalCodeController.text == '\u200b')
+                                      if (_isMobile &&
+                                          _postalCodeController.text ==
+                                              '\u200b')
                                         Text(
                                           'Postal Code',
                                           style: _hintTextSyle,
@@ -602,12 +682,17 @@ class CardTextFieldState extends State<CardTextField> {
                                         focusNode: postalCodeFocusNode,
                                         controller: _postalCodeController,
                                         keyboardType: TextInputType.number,
-                                        style: _isRedText(
-                                                [CardDetailsValidState.invalidZip, CardDetailsValidState.missingZip])
+                                        style: _isRedText([
+                                          CardDetailsValidState.invalidZip,
+                                          CardDetailsValidState.missingZip
+                                        ])
                                             ? _errorTextStyle
                                             : _normalTextStyle,
                                         validator: (content) {
-                                          if (content == null || content.isEmpty || _isMobile && content == '\u200b') {
+                                          if (content == null ||
+                                              content.isEmpty ||
+                                              _isMobile &&
+                                                  content == '\u200b') {
                                             return null;
                                           }
 
@@ -617,15 +702,22 @@ class CardTextFieldState extends State<CardTextField> {
                                           //   setState(() => _cardDetails.postalCode = content);
                                           // }
 
-                                          if (_cardDetails.validState == CardDetailsValidState.invalidZip) {
-                                            _setValidationState('The postal code you entered is not correct.');
-                                          } else if (_cardDetails.validState == CardDetailsValidState.missingZip) {
-                                            _setValidationState('You must enter your card\'s postal code.');
+                                          if (_cardDetails.validState ==
+                                              CardDetailsValidState
+                                                  .invalidZip) {
+                                            _setValidationState(
+                                                'The postal code you entered is not correct.');
+                                          } else if (_cardDetails.validState ==
+                                              CardDetailsValidState
+                                                  .missingZip) {
+                                            _setValidationState(
+                                                'You must enter your card\'s postal code.');
                                           }
                                           return null;
                                         },
                                         onChanged: (str) {
-                                          _onTextFieldChanged(str, CardEntryStep.postal);
+                                          _onTextFieldChanged(
+                                              str, CardEntryStep.postal);
                                         },
                                         textInputAction: TextInputAction.done,
                                         onFieldSubmitted: (_) {
@@ -634,7 +726,8 @@ class CardTextFieldState extends State<CardTextField> {
                                         cursorColor: _cursorColor,
                                         decoration: InputDecoration(
                                           contentPadding: EdgeInsets.zero,
-                                          hintText: _isMobile ? '' : 'Postal Code',
+                                          hintText:
+                                              _isMobile ? '' : 'Postal Code',
                                           hintStyle: _hintTextSyle,
                                           fillColor: Colors.transparent,
                                           border: InputBorder.none,
@@ -646,11 +739,16 @@ class CardTextFieldState extends State<CardTextField> {
                               ],
                             ),
                           ),
-                          if (widget.loadingWidgetLocation == LoadingLocation.below)
+                          if (widget.loadingWidgetLocation ==
+                              LoadingLocation.below)
                             AnimatedOpacity(
                               duration: const Duration(milliseconds: 300),
-                              opacity: _loading && widget.showInternalLoadingWidget ? 1.0 : 0.0,
-                              child: widget.loadingWidget ?? const LinearProgressIndicator(),
+                              opacity:
+                                  _loading && widget.showInternalLoadingWidget
+                                      ? 1.0
+                                      : 0.0,
+                              child: widget.loadingWidget ??
+                                  const LinearProgressIndicator(),
                             ),
                         ],
                       ),
@@ -687,7 +785,8 @@ class CardTextFieldState extends State<CardTextField> {
 
     switch (step) {
       case CardEntryStep.number:
-        setState(() => _cardDetails.cardNumber = cleanedStr.replaceAll(' ', ''));
+        setState(
+            () => _cardDetails.cardNumber = cleanedStr.replaceAll(' ', ''));
         break;
       case CardEntryStep.exp:
         setState(() => _cardDetails.expirationString = cleanedStr);
@@ -715,15 +814,31 @@ class CardTextFieldState extends State<CardTextField> {
     _expirationFieldWidth = widget.expFieldWidth ?? 70.0;
     _securityFieldWidth = widget.securityFieldWidth ?? 40.0;
     _postalFieldWidth = widget.postalFieldWidth ?? 95.0;
-    isWideFormat =
-        widget.width >= _cardFieldWidth + _expirationFieldWidth + _securityFieldWidth + _postalFieldWidth + 60.0;
+    isWideFormat = widget.width >=
+        _cardFieldWidth +
+            _expirationFieldWidth +
+            _securityFieldWidth +
+            _postalFieldWidth +
+            60.0;
     if (isWideFormat) {
       _internalFieldWidth = widget.width + _postalFieldWidth + 35;
-      _expanderWidthExpanded = widget.width - _cardFieldWidth - _expirationFieldWidth - _securityFieldWidth - 35;
-      _expanderWidthCollapsed =
-          widget.width - _cardFieldWidth - _expirationFieldWidth - _securityFieldWidth - _postalFieldWidth - 70;
+      _expanderWidthExpanded = widget.width -
+          _cardFieldWidth -
+          _expirationFieldWidth -
+          _securityFieldWidth -
+          35;
+      _expanderWidthCollapsed = widget.width -
+          _cardFieldWidth -
+          _expirationFieldWidth -
+          _securityFieldWidth -
+          _postalFieldWidth -
+          70;
     } else {
-      _internalFieldWidth = _cardFieldWidth + _expirationFieldWidth + _securityFieldWidth + _postalFieldWidth + 80;
+      _internalFieldWidth = _cardFieldWidth +
+          _expirationFieldWidth +
+          _securityFieldWidth +
+          _postalFieldWidth +
+          80;
     }
 
     _isMobile = kIsWeb ? !isWideFormat : Platform.isAndroid || Platform.isIOS;
@@ -738,11 +853,15 @@ class CardTextFieldState extends State<CardTextField> {
 
   /// Called every `build()` invocation, combines passed in styles with the defaults
   void _initStyles() {
-    _errorTextStyle = const TextStyle(color: Colors.red, fontSize: 14, inherit: true)
-        .merge(widget.errorTextStyle ?? widget.textStyle);
-    _normalTextStyle = const TextStyle(color: Colors.black87, fontSize: 14, inherit: true).merge(widget.textStyle);
-    _hintTextSyle = const TextStyle(color: Colors.black54, fontSize: 14, inherit: true)
-        .merge(widget.hintTextStyle ?? widget.textStyle);
+    _errorTextStyle =
+        const TextStyle(color: Colors.red, fontSize: 14, inherit: true)
+            .merge(widget.errorTextStyle ?? widget.textStyle);
+    _normalTextStyle =
+        const TextStyle(color: Colors.black87, fontSize: 14, inherit: true)
+            .merge(widget.textStyle);
+    _hintTextSyle =
+        const TextStyle(color: Colors.black54, fontSize: 14, inherit: true)
+            .merge(widget.hintTextStyle ?? widget.textStyle);
 
     _normalBoxDecoration = BoxDecoration(
       color: const Color(0xfff6f9fc),
@@ -784,8 +903,10 @@ class CardTextFieldState extends State<CardTextField> {
 
   void _checkErrorOverride() {
     if ((widget.errorText != null || widget.overrideValidState != null) &&
-        Object.hashAll([widget.errorText, widget.overrideValidState]) != _prevErrorOverrideHash) {
-      _prevErrorOverrideHash = Object.hashAll([widget.errorText, widget.overrideValidState]);
+        Object.hashAll([widget.errorText, widget.overrideValidState]) !=
+            _prevErrorOverrideHash) {
+      _prevErrorOverrideHash =
+          Object.hashAll([widget.errorText, widget.overrideValidState]);
       _validateFields();
     }
   }
@@ -793,7 +914,9 @@ class CardTextFieldState extends State<CardTextField> {
   // Makes an http call to stripe API with provided card credentials and returns the result
   Future<Map<String, dynamic>?> getStripeResponse() async {
     if (widget.stripePublishableKey == null) {
-      if (kDebugMode) print('***ERROR tried calling `getStripeResponse()` but no stripe key provided');
+      if (kDebugMode)
+        print(
+            '***ERROR tried calling `getStripeResponse()` but no stripe key provided');
       return null;
     }
 
@@ -801,7 +924,8 @@ class CardTextFieldState extends State<CardTextField> {
 
     if (!_cardDetails.isComplete) {
       if (kDebugMode) {
-        print('***ERROR Could not get stripe response, card details not complete: ${_cardDetails.validState}');
+        print(
+            '***ERROR Could not get stripe response, card details not complete: ${_cardDetails.validState}');
       }
       return null;
     }
@@ -842,7 +966,8 @@ class CardTextFieldState extends State<CardTextField> {
     if (_cardDetails.isComplete) {
       if (widget.onValidCardDetails != null) {
         widget.onValidCardDetails!(_cardDetails);
-      } else if (widget.onStripeResponse != null && !widget.autoFetchStripektoken) {
+      } else if (widget.onStripeResponse != null &&
+          !widget.autoFetchStripektoken) {
         // Callback that stripe call is being made
         if (widget.onCallToStripe != null) widget.onCallToStripe!();
         final jsonBody = await getStripeResponse();
@@ -896,14 +1021,20 @@ class CardTextFieldState extends State<CardTextField> {
         _horizontalScrollController.animateTo(-20.0, duration: dur, curve: cur);
         break;
       case CardEntryStep.exp:
-        _horizontalScrollController.animateTo(_cardFieldWidth / 2, duration: dur, curve: cur);
+        _horizontalScrollController.animateTo(_cardFieldWidth / 2,
+            duration: dur, curve: cur);
         break;
       case CardEntryStep.cvc:
-        _horizontalScrollController.animateTo(_cardFieldWidth / 2 + _expirationFieldWidth, duration: dur, curve: cur);
+        _horizontalScrollController.animateTo(
+            _cardFieldWidth / 2 + _expirationFieldWidth,
+            duration: dur,
+            curve: cur);
         break;
       case CardEntryStep.postal:
-        _horizontalScrollController.animateTo(_cardFieldWidth / 2 + _expirationFieldWidth + _securityFieldWidth,
-            duration: dur, curve: cur);
+        _horizontalScrollController.animateTo(
+            _cardFieldWidth / 2 + _expirationFieldWidth + _securityFieldWidth,
+            duration: dur,
+            curve: cur);
         break;
     }
   }
@@ -941,8 +1072,10 @@ class CardTextFieldState extends State<CardTextField> {
         postalCodeFocusNode.requestFocus();
         break;
     }
+
     /// Make the selection adjustment after first frame builds
-    if (kIsWeb) WidgetsBinding.instance.addPostFrameCallback((_) => _adjustSelection());
+    if (kIsWeb)
+      WidgetsBinding.instance.addPostFrameCallback((_) => _adjustSelection());
 
     if (!isWideFormat) {
       _scrollRow(step);
@@ -963,26 +1096,26 @@ class CardTextFieldState extends State<CardTextField> {
       case CardEntryStep.number:
         final len = _cardNumberController.text.length;
         final offset = len == 0 ? 1 : len;
-        _cardNumberController.value =
-            _cardNumberController.value.copyWith(selection: TextSelection(baseOffset: offset, extentOffset: offset));
+        _cardNumberController.value = _cardNumberController.value.copyWith(
+            selection: TextSelection(baseOffset: offset, extentOffset: offset));
         break;
       case CardEntryStep.exp:
         final len = _expirationController.text.length;
         final offset = len == 0 ? 0 : len;
-        _expirationController.value =
-            _expirationController.value.copyWith(selection: TextSelection(baseOffset: offset, extentOffset: offset));
+        _expirationController.value = _expirationController.value.copyWith(
+            selection: TextSelection(baseOffset: offset, extentOffset: offset));
         break;
       case CardEntryStep.cvc:
         final len = _securityCodeController.text.length;
         final offset = len == 0 ? 0 : len;
-        _securityCodeController.value =
-            _securityCodeController.value.copyWith(selection: TextSelection(baseOffset: offset, extentOffset: offset));
+        _securityCodeController.value = _securityCodeController.value.copyWith(
+            selection: TextSelection(baseOffset: offset, extentOffset: offset));
         break;
       case CardEntryStep.postal:
         final len = _postalCodeController.text.length;
         final offset = len == 0 ? 0 : len;
-        _postalCodeController.value =
-            _postalCodeController.value.copyWith(selection: TextSelection(baseOffset: offset, extentOffset: offset));
+        _postalCodeController.value = _postalCodeController.value.copyWith(
+            selection: TextSelection(baseOffset: offset, extentOffset: offset));
         break;
     }
   }
@@ -1056,7 +1189,8 @@ class CardTextFieldState extends State<CardTextField> {
 /// to make the card number display cleanly.
 class CardNumberInputFormatter implements TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     String cardNum = newValue.text;
     if (cardNum.length <= 4) return newValue;
 
@@ -1071,7 +1205,9 @@ class CardNumberInputFormatter implements TextInputFormatter {
       }
     }
 
-    return newValue.copyWith(text: buffer.toString(), selection: TextSelection.collapsed(offset: buffer.length));
+    return newValue.copyWith(
+        text: buffer.toString(),
+        selection: TextSelection.collapsed(offset: buffer.length));
   }
 }
 
@@ -1079,7 +1215,8 @@ class CardNumberInputFormatter implements TextInputFormatter {
 /// the month and the year for the expiration date.
 class CardExpirationFormatter implements TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     String cardExp = newValue.text;
     if (cardExp.length == 1) {
       if (cardExp[0] == '0' || cardExp[0] == '1') {
@@ -1100,6 +1237,8 @@ class CardExpirationFormatter implements TextInputFormatter {
         buffer.write('/');
       }
     }
-    return newValue.copyWith(text: buffer.toString(), selection: TextSelection.collapsed(offset: buffer.length));
+    return newValue.copyWith(
+        text: buffer.toString(),
+        selection: TextSelection.collapsed(offset: buffer.length));
   }
 }
