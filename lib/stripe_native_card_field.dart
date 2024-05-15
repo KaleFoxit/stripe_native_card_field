@@ -264,6 +264,7 @@ class CardTextFieldState extends State<CardTextField> {
     if(!widget.enablePostalCode){
       //add a mock postal code
       _postalCodeController.text = '90001';
+      _cardDetails.postalCode = "90001";
     }
 
     _controllers.addAll([
