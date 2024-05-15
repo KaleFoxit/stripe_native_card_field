@@ -643,18 +643,19 @@ class CardTextFieldState extends State<CardTextField> {
                                           }
                                           return null;
                                         },
-                                        onFieldSubmitted: (_) =>
-                                            _currentCardEntryStepController
-                                                .add(CardEntryStep.postal),
+                                        onFieldSubmitted: (_) {
+                                          if(widget.enablePostalCode){
+                                            _currentCardEntryStepController.add(CardEntryStep.postal);
+                                          }else{
+                                            _postalFieldSubmitted();
+                                          }
+                                        } ,
                                         onChanged: (str) {
-                                          _onTextFieldChanged(
-                                              str, CardEntryStep.cvc);
-
-                                          if (str.length ==
-                                              _cardDetails
-                                                  .provider?.cvcLength) {
-                                            _currentCardEntryStepController
-                                                .add(CardEntryStep.postal);
+                                          _onTextFieldChanged(str, CardEntryStep.cvc);
+                                          if (str.length == _cardDetails.provider?.cvcLength) {
+                                            if(widget.enablePostalCode){
+                                              _currentCardEntryStepController.add(CardEntryStep.postal);
+                                            }
                                           }
                                         },
                                         inputFormatters: [
@@ -730,8 +731,7 @@ class CardTextFieldState extends State<CardTextField> {
                                           return null;
                                         },
                                         onChanged: (str) {
-                                          _onTextFieldChanged(
-                                              str, CardEntryStep.postal);
+                                          _onTextFieldChanged(str, CardEntryStep.postal);
                                         },
                                         textInputAction: TextInputAction.done,
                                         onFieldSubmitted: (_) {
