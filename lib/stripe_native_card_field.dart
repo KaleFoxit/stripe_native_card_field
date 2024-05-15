@@ -261,6 +261,11 @@ class CardTextFieldState extends State<CardTextField> {
     _postalCodeController =
         TextEditingController(text: _isMobile ? '\u200b' : '');
 
+    if(!widget.enablePostalCode){
+      //add a mock postal code
+      _postalCodeController.text = '90001';
+    }
+
     _controllers.addAll([
       _cardNumberController,
       _expirationController,
@@ -858,11 +863,6 @@ class CardTextFieldState extends State<CardTextField> {
     //   controller.text = '\u200b';
     //   index += 1;
     // }
-
-    if(!widget.enablePostalCode){
-      //add a mock postal code
-      _postalCodeController.text = '90001';
-    }
   }
 
   /// Called every `build()` invocation, combines passed in styles with the defaults
