@@ -67,6 +67,7 @@ class CardTextField extends StatefulWidget {
     this.iconSize,
     this.cardIconColor,
     this.cardIconErrorColor,
+    this.enablePostalCode = false,
   }) : super(key: key) {
     // Setup logic for the CardTextField
     // Will assert in debug mode, otherwise will throw `CardTextFieldError` in profile or release
@@ -81,6 +82,13 @@ class CardTextField extends StatefulWidget {
       }
     }
   }
+
+  /// Whether or not to show the postalcode field in the form.
+  ///
+  /// Defaults is `false`. If your configuration in Stripe requires a postalcode
+  /// check as defined in https://stripe.com/docs/radar/rules#traditional-bank-checks
+  /// make sure this one is set to `true`.
+  final bool enablePostalCode;
 
   /// Width of the entire CardTextField
   final double width;
@@ -665,6 +673,7 @@ class CardTextFieldState extends State<CardTextField> {
                                     ],
                                   ),
                                 ),
+                                if(widget.enablePostalCode)
                                 SizedBox(
                                   width: _postalFieldWidth,
                                   child: Stack(
